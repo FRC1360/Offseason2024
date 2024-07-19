@@ -15,22 +15,39 @@ public class IntakeSubsystem extends SubsystemBase {
     private CANSparkMax motorTop;
     private CANSparkMax motorMiddle;
     private CANSparkMax motorBottom;
-    private double targetSpeedBottom;
+    private double targetBottomSpeed;
+    private double targetRollerSpeed;
 
 
     public IntakeSubsystem() {
       this.motorTop = new CANSparkMax(Constants.IntakeConstants.TOP_MOTOR_ID, MotorType.kBrushless);
       this.motorMiddle = new CANSparkMax(Constants.IntakeConstants.MIDDLE_MOTOR_ID, MotorType.kBrushless);
       this.motorBottom = new CANSparkMax(Constants.IntakeConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
-      this.targetSpeedBottom = 0.0;
+      this.targetBottomSpeed = 0.0;
+      this.targetRollerSpeed = 0.0;
     }
 
-    public void setBottomSpeed(targetSpeedBottom) {
-      this.motorBottom.set(targetSpeedBottom);
+//Add deadbands fopr the atspeed triggers because fluctuations exist
+
+    public void setBottomSpeed(double targetBottomSpeed) {
+      this.targetBottomSpeed = targetBottomSpeed * Constants.IntakeConstants.BOTTOM_MOTOR_GEAR_RATIO_COEFFICIENT;
     }
 
-    public boolean bottomSpeedAtTraget(targetSpeedBottom) {
-      if (motorBottom.get() == targetSpeedBottom) {
+    public boolean bottomSpeedAtTraget() {
+      if (motorBottom.get() == this.targetBottomSpeed) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+
+    public void setRollerSpeed(double targetRollerSpeed) {
+      this.targetRollerSpeed = targetRollerSpeed * Constants.IntakeConstants.ROLLER_MOTORS_GEAR_RATIO_COEFFICIENT;
+    }
+
+    public boolean RollerSpeedAtTraget() {
+      if (motorMiddle.get() == this.targetRollerSpeed && motorTop.get() == this.targetRollerSpeed) {
         return true;
       }
       else {
@@ -40,6 +57,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-      setBottomSpeed(0.0);
+      this.motorBottom.set(this.targetBottomSpeed);
+      this.motorMiddle.set(this.targetRollerSpeed);
+      this.motorTop.set(this.targetRollerSpeed);
     }
 }

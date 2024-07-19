@@ -54,7 +54,14 @@ public final class Constants
     public static final int TOP_MOTOR_ID = 0;
     public static final int MIDDLE_MOTOR_ID = 0;
     public static final int BOTTOM_MOTOR_ID = 0;
+    public static final double BOTTOM_MOTOR_GEAR_RATIO_COEFFICIENT = 4;
+    public static final double ROLLER_MOTORS_GEAR_RATIO_COEFFICIENT = 4;
+  }
 
+  public static class IndexConstants {
+    public static final int TOP_MOTOR_ID = 0;
+    public static final int BOTTOM_MOTOR_ID = 0;
+    public static final double MOTOR_GEAR_RATIO_COEFFICIENT = 4;
   }
 
     //Gear ratios
