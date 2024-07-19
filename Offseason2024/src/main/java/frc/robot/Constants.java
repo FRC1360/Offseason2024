@@ -49,4 +49,11 @@ public final class Constants
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
+
+  public static class IntakeConstants {
+    public static final int TOP_MOTOR_ID = 0;
+    public static final int MIDDLE_MOTOR_ID = 0;
+    public static final int BOTTOM_MOTOR_ID = 0;
+
+  }
 }
