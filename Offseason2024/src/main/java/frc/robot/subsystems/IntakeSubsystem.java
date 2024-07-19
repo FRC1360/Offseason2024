@@ -15,21 +15,31 @@ public class IntakeSubsystem extends SubsystemBase {
     private CANSparkMax motorTop;
     private CANSparkMax motorMiddle;
     private CANSparkMax motorBottom;
+    private double targetSpeedBottom;
 
 
     public IntakeSubsystem() {
       this.motorTop = new CANSparkMax(Constants.IntakeConstants.TOP_MOTOR_ID, MotorType.kBrushless);
       this.motorMiddle = new CANSparkMax(Constants.IntakeConstants.MIDDLE_MOTOR_ID, MotorType.kBrushless);
       this.motorBottom = new CANSparkMax(Constants.IntakeConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
-      }
+      this.targetSpeedBottom = 0.0;
+    }
 
-    public //intake is 4:1
-    //index is 4:1
-    //shooter is 1:1
-    //pivot 112.5:1
+    public void setBottomSpeed(targetSpeedBottom) {
+      this.motorBottom.set(targetSpeedBottom);
+    }
+
+    public boolean bottomSpeedAtTraget(targetSpeedBottom) {
+      if (motorBottom.get() == targetSpeedBottom) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
 
     @Override
     public void periodic() {
-      // This method will be called once per scheduler run
+      setBottomSpeed(0.0);
     }
 }

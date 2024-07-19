@@ -56,4 +56,11 @@ public final class Constants
     public static final int BOTTOM_MOTOR_ID = 0;
 
   }
+
+    //Gear ratios
+    //intake is 4:1
+    //index is 4:1
+    //shooter is 1:1
+    //pivot 112.5:1
+
 }
