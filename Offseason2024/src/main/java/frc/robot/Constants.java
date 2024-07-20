@@ -74,6 +74,7 @@ public final class Constants
 
     public static final double VELOCITY_DEADBAND = 100;
     public static final double SHOOTER_INTAKE_SPEED = -200;
+    public static final double SHOOTER_SHOOT_SPEED = 0;
   }
 
   public static class PivotConstants {
@@ -88,6 +89,7 @@ public final class Constants
     public static final int PIVOT_DEADBAND = 2;
     public static final double MAX_ANGLE = 60;
     public static final double MIN_ANGLE = 0;
+    public static final double SHOOT_ANGLE = 0;
   }
 
     //Gear ratios

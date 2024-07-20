@@ -123,8 +123,11 @@ public class RobotContainer
     driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
 
-    leftJoystick.button(1).onTrue((new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
+    leftJoystick.button(1).onTrue(new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION)));
     leftJoystick.button(1).and(pivot.atHome).and(() -> !((index.noteDetected).getAsBoolean())).whileTrue(( new InstantCommand(() -> intake.setBottomSpeed(Constants.IntakeConstants.BOTTOM_MOTOR_INTAKE_SPEED))).andThen(new InstantCommand(() -> intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED))).andThen(new InstantCommand( () -> index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED))).andThen(new InstantCommand(() -> index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))).andThen(new InstantCommand(() -> shooter.setVelocity(Constants.ShooterConstants.SHOOTER_INTAKE_SPEED))));
+  
+    rightJoystick.button(1).onTrue(new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.SHOOT_ANGLE)).andThen(new InstantCommand(() -> shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED))));
+    rightJoystick.button(1).and(index.noteDetected).and(shooter.atTargetVelocity).and(pivot.atTarget).whileTrue(new InstantCommand(() -> index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED)).andThen(new InstantCommand(() -> index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))));
   }
 
   /**
