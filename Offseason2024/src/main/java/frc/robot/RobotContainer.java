@@ -122,7 +122,9 @@ public class RobotContainer
                               ));
     driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-    // leftJoystick.button(1).whileTrue().and(!(index.noteDetected())).and(pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION)).and(pivot.atTarget()).then(new InstantCommand(() -> {(intake.setBottomSpeed(Constants.IntakeConstants.BOTTOM_MOTOR_INTAKE_SPEED)).and(intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTOR_INTAKE_SPEED))});
+
+    leftJoystick.button(1).onTrue((new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
+    leftJoystick.button(1).and(pivot.atHome).and(() -> !((index.noteDetected).getAsBoolean())).whileTrue(( new InstantCommand(() -> intake.setBottomSpeed(Constants.IntakeConstants.BOTTOM_MOTOR_INTAKE_SPEED))).andThen( new InstantCommand(() -> intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED))));
   }
 
   /**
