@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,6 +17,10 @@ public class ShooterSubsystem extends SubsystemBase {
   CANSparkFlex motorBottom;
   SparkPIDController topController;
   SparkPIDController bottomController;
+  double targetVelocity;
+  double currentTopVelocity;
+  double currentBottomVelocity;
+  double deadband;
   double topP, topI, topD, topFF, bottomP, bottomI, botomD, bottomFF;
 
   public ShooterSubsystem() {
@@ -24,15 +29,56 @@ public class ShooterSubsystem extends SubsystemBase {
     this.topController = motorTop.getPIDController();
     this.bottomController = motorBottom.getPIDController();
 
+    this.targetVelocity = 0.0;
+    this.currentTopVelocity = 0.0;
+    this.currentBottomVelocity = 0.0;
+    this.deadband = 100.0;
 
+    this.topP = 0.0;
+    this.topI = 0.0;
+    this.topD = 0.0;
+    this.topFF = 0.0;
+    this.bottomP = 0.0;
+    this.bottomI = 0.0;
+    this.botomD = 0.0;
+    this.bottomFF = 0.0;
 
-
-    
-
+    this.topController.setP(this.topP);
+    this.topController.setI(this.topI);
+    this.topController.setD(this.topD);
+    this.topController.setFF(this.topFF);
+    this.bottomController.setP(this.bottomP);
+    this.bottomController.setI(this.bottomI);
+    this.bottomController.setD(this.botomD);
+    this.bottomController.setFF(this.bottomFF);
   }
 
+
+  public void setVelocity(double targetVelocity) {
+    this.targetVelocity = targetVelocity;
+  }
+
+  public double getTopVelocity() {
+    this.currentTopVelocity = this.motorTop.getEncoder().getVelocity();
+    return this.currentTopVelocity;
+  }
+
+  public double getBottomVelocity() {
+    this.currentBottomVelocity = this.motorBottom.getEncoder().getVelocity();
+    return this.currentBottomVelocity;
+  }
+
+  public boolean atTargetVelocity() {
+    if (Math.abs(this.currentTopVelocity - this.targetVelocity) <= this.deadband && Math.abs(this.currentBottomVelocity - this.targetVelocity) <= this.deadband) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    this.topController.setReference(this.targetVelocity, ControlType.kVelocity);
+    this.bottomController.setReference(this.targetVelocity, ControlType.kVelocity);
   }
 }
