@@ -75,6 +75,7 @@ public final class Constants
     public static final double VELOCITY_DEADBAND = 100;
     public static final double SHOOTER_INTAKE_SPEED = -200;
     public static final double SHOOTER_SHOOT_SPEED = 0;
+    public static final double MAX_VELOCITY = 6800;
   }
 
   public static class PivotConstants {

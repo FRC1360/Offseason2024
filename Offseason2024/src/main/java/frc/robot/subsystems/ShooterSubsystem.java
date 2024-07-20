@@ -9,6 +9,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -54,7 +55,14 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
 
+  Trigger atMaxVelocity = new Trigger(() -> this.currentTopVelocity >= Constants.ShooterConstants.MAX_VELOCITY && this.currentBottomVelocity >= Constants.ShooterConstants.MAX_VELOCITY);
+
   public void setVelocity(double targetVelocity) {
+    if (targetVelocity >= Constants.ShooterConstants.MAX_VELOCITY) {
+      this.targetVelocity = Constants.ShooterConstants.MAX_VELOCITY - 100;
+      DriverStation.reportError("tried to set shooter wheels to value greater than max velocity", true);
+      return;
+    }
     this.targetVelocity = targetVelocity;
   }
 
@@ -80,5 +88,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
     this.topController.setReference(this.targetVelocity, ControlType.kVelocity);
     this.bottomController.setReference(this.targetVelocity, ControlType.kVelocity);
+
+    if (this.atMaxVelocity.getAsBoolean()) stopShooter();
   }
 }

@@ -109,6 +109,8 @@ public class PivotSubsystem extends SubsystemBase {
 
   public Trigger atTarget = new Trigger(() -> Math.abs(this.targetAngle - this.getPivotAngle()) <= Constants.PivotConstants.PIVOT_DEADBAND);
   public Trigger atHome = new Trigger(() -> Math.abs(this.getPivotAngle() - Constants.PivotConstants.HOME_POSITION) <= Constants.PivotConstants.PIVOT_DEADBAND);
+  public Trigger atMaxAngle = new Trigger(() -> Math.abs(this.getPivotAngle() - Constants.PivotConstants.MAX_ANGLE) <= Constants.PivotConstants.PIVOT_DEADBAND);
+  public Trigger atMinAngle = new Trigger(() -> Math.abs(this.getPivotAngle() - Constants.PivotConstants.MIN_ANGLE) <= Constants.PivotConstants.PIVOT_DEADBAND);
 
   public void setTargetAngle(double targetAngle) {
     if (this.targetAngle == targetAngle) {
