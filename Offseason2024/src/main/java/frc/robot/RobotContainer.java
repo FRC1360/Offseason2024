@@ -13,11 +13,16 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.subsystems.IndexSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PivotSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
@@ -36,6 +41,10 @@ public class RobotContainer
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve/neo"));
+  final IntakeSubsystem intake = new IntakeSubsystem();
+  final IndexSubsystem index = new IndexSubsystem();
+  final ShooterSubsystem shooter = new ShooterSubsystem();
+  final PivotSubsystem pivot = new PivotSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -105,14 +114,15 @@ public class RobotContainer
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-    driverXbox.b().whileTrue(
+    leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    rightJoystick.button(11).onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+    rightJoystick.button(10).whileTrue(
         Commands.deferredProxy(() -> drivebase.driveToPose(
                                    new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                               ));
     driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    // leftJoystick.button(1).whileTrue().and(!(index.noteDetected())).and(pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION)).and(pivot.atTarget()).then(new InstantCommand(() -> {(intake.setBottomSpeed(Constants.IntakeConstants.BOTTOM_MOTOR_INTAKE_SPEED)).and(intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTOR_INTAKE_SPEED))});
   }
 
   /**

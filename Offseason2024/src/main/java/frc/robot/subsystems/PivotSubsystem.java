@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.util.OrbitTimer;
 
@@ -106,22 +107,22 @@ public class PivotSubsystem extends SubsystemBase {
                                                                                                  // in deg/sec
   }
 
-  public boolean atTarget() {
-    return Math.abs(this.targetAngle - this.getPivotAngle()) <= Constants.PivotConstants.PIVOT_DEADBAND;
-  }
+  public Trigger atTarget = new Trigger(() -> Math.abs(this.targetAngle - this.getPivotAngle()) <= Constants.PivotConstants.PIVOT_DEADBAND);
 
   public void setTargetAngle(double targetAngle) {
     if (this.targetAngle == targetAngle) {
-        return;
+      return;
     }
 
-  this.targetAngle = targetAngle;
+    this.targetAngle = targetAngle;
+    }
 
+  public void goToTargetAngle() {
   if (this.targetAngle >= Constants.PivotConstants.MAX_ANGLE
           || this.targetAngle <= Constants.PivotConstants.MIN_ANGLE)
 
   {
-      DriverStation.reportError("Tried to set ACP to above or below max or min; Target: " + this.targetAngle,
+      DriverStation.reportError("Tried to make Pivot go above or below max or min; Target: " + this.targetAngle,
               true);
       System.exit(1);
   }
@@ -171,6 +172,7 @@ public class PivotSubsystem extends SubsystemBase {
         // goal, making it a PID/FF control loop only
         double out = calculateControlLoopOutput();
         SmartDashboard.putNumber("ACP_Control_Loop_Out", out);
+        goToTargetAngle();
         // this.setACPNormalizedVoltage(out);
         // SmartDashboard.putNumber("Current Angle: ", this.getACPAngle());
         // SmartDashboard.putNumber("Target Angle: ", true);

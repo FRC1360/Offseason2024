@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 public class IndexSubsystem extends SubsystemBase {
@@ -42,23 +43,13 @@ public class IndexSubsystem extends SubsystemBase {
       this.targetSpeed = targetSpeed * Constants.IndexConstants.MOTOR_GEAR_RATIO_COEFFICIENT;
     }
 
-    public boolean speedAtTarget() {
-      if (Math.abs(motorBottom.get() - this.targetSpeed) <= Constants.IndexConstants.SPEED_DEADBAND && motorTop.get() == this.targetSpeed) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
+    public Trigger speedAtTarget = new Trigger(() -> (Math.abs(motorBottom.get() - this.targetSpeed) <= Constants.IndexConstants.SPEED_DEADBAND && motorTop.get() == this.targetSpeed));
 
-    public boolean noteDetected() {
-      return !(sensor.get());
-    }
+    public Trigger noteDetected = new Trigger (() -> (!(sensor.get())));
 
     @Override
     public void periodic() {
       this.motorBottom.set(this.targetSpeed);
       this.motorTop.set(this.targetSpeed);
-      SmartDashboard.putBoolean("note detected in index", noteDetected());
     }
 }

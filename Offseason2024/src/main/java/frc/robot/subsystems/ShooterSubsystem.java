@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -67,14 +68,8 @@ public class ShooterSubsystem extends SubsystemBase {
     return this.currentBottomVelocity;
   }
 
-  public boolean atTargetVelocity() {
-    if (Math.abs(this.currentTopVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND && Math.abs(this.currentBottomVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
+  public Trigger atTargetVelocity = new Trigger (() -> (Math.abs(this.currentTopVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND) && (Math.abs(this.currentBottomVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND));
+
   @Override
   public void periodic() {
     this.topController.setReference(this.targetVelocity, ControlType.kVelocity);

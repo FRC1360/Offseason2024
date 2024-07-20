@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -37,27 +38,14 @@ public class IntakeSubsystem extends SubsystemBase {
       this.targetBottomSpeed = targetBottomSpeed * Constants.IntakeConstants.BOTTOM_MOTOR_GEAR_RATIO_COEFFICIENT;
     }
 
-    public boolean bottomSpeedAtTraget() {
-      if (motorBottom.get() == this.targetBottomSpeed) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
-
     public void setRollerSpeed(double targetRollerSpeed) {
       this.targetRollerSpeed = targetRollerSpeed * Constants.IntakeConstants.ROLLER_MOTORS_GEAR_RATIO_COEFFICIENT;
     }
 
-    public boolean RollerSpeedAtTraget() {
-      if (motorMiddle.get() == this.targetRollerSpeed && motorTop.get() == this.targetRollerSpeed) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
+    public Trigger rollerSpeedAtTarget = new Trigger (() -> (motorMiddle.get() == this.targetRollerSpeed && motorTop.get() == this.targetRollerSpeed));
+
+    public Trigger bottomSpeedAtTarget = new Trigger(() -> (motorBottom.get() == this.targetBottomSpeed));
+
 
     @Override
     public void periodic() {
