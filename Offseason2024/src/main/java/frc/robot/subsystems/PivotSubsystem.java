@@ -81,7 +81,7 @@ public class PivotSubsystem extends SubsystemBase {
     this.motionProfileEndState = new TrapezoidProfile.State(this.getPivotAngle(), 0.0);
 
     this.timer = new OrbitTimer();
-  }
+    }
 
 
   public double getMotorRotations() {
@@ -97,27 +97,23 @@ public class PivotSubsystem extends SubsystemBase {
     // angle of motor rotation * GEAR_RATIO = pivot angle
     // Pivot angle % 360 = keep range between 0-360
     return (encoderPosition * 360.0); // % 360;
-}
+  }
 
-public double getAngularVelocity() {
-  return this.rotationsToAngleConversion(this.pivotMotorMaster.getEncoder().getVelocity()) / 60.0; // Units given in
+  public double getAngularVelocity() {
+    return this.rotationsToAngleConversion(this.pivotMotorMaster.getEncoder().getVelocity()) / 60.0; // Units given in
                                                                                                  // RPM. divided
                                                                                                  // by 60 to get
                                                                                                  // in deg/sec
-}
-
-public boolean atTarget() {
-  return Math.abs(this.targetAngle - this.getPivotAngle()) <= Constants.PivotConstants.PIVOT_DEADBAND;
-}
-
-public void setPivotAngle(double angle) {
-
-}
-
-public void setTargetAngle(double targetAngle) {
-  if (this.targetAngle == targetAngle) {
-      return;
   }
+
+  public boolean atTarget() {
+    return Math.abs(this.targetAngle - this.getPivotAngle()) <= Constants.PivotConstants.PIVOT_DEADBAND;
+  }
+
+  public void setTargetAngle(double targetAngle) {
+    if (this.targetAngle == targetAngle) {
+        return;
+    }
 
   this.targetAngle = targetAngle;
 
@@ -210,6 +206,4 @@ public void setTargetAngle(double targetAngle) {
 
         this.targetAngle = this.getPivotAngle();
     }
-    }
-  }
 }
