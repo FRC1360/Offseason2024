@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -26,7 +27,7 @@ public class PivotSubsystem extends SubsystemBase {
 
   private PIDController movePIDController;
   private double targetAngle;
-  private double kP, kI, kD, kFF;
+  private double kP, kI, kD, kS, kG, kV;
 
   private OrbitTimer timer;
 
@@ -56,6 +57,7 @@ public class PivotSubsystem extends SubsystemBase {
     this.absoluteEncoder = new DutyCycleEncoder(Constants.PivotConstants.PIVOT_ENCODER_CHANNEL);
 
     this.movePIDController = new PIDController(kP, kI, kD);
+    this.pivotFeedForward = new ArmFeedforward(kS, kG, kV);
 
     this.maxVelocity = 85.0; //the units are deg/sec for velocity and deg/ sec^2 for acceleration
     this.maxAcceleration = 140.0;
@@ -69,8 +71,10 @@ public class PivotSubsystem extends SubsystemBase {
 
     this.kP = 0.0;
     this.kI = 0.0;
-    this.kD = 0.0; 
-    this.kFF = 0.0;
+    this.kD = 0.0;
+    this.kS = 0.0;
+    this.kG = 0.0;
+    this.kV = 0.0;
 
 
     this.motionProfileStartState = new TrapezoidProfile.State(this.getPivotAngle(), 0.0);
@@ -164,6 +168,48 @@ public void setTargetAngle(double targetAngle) {
 
   @Override
   public void periodic() {
-    
+     updateSmartDashboard();
+        // All of Control Loop motion is done within the subsystem -- simply set a
+        // target angle and the subsystem will go there
+        // When the motion profile is finished, the result which it outputs will be the
+        // goal, making it a PID/FF control loop only
+        double out = calculateControlLoopOutput();
+        SmartDashboard.putNumber("ACP_Control_Loop_Out", out);
+        // this.setACPNormalizedVoltage(out);
+        // SmartDashboard.putNumber("Current Angle: ", this.getACPAngle());
+        // SmartDashboard.putNumber("Target Angle: ", true);
+    }
+
+    public void updateSmartDashboard() {
+
+        Preferences.getDouble("pivot_Move_P_Gain", this.movePIDController.getP());
+        Preferences.getDouble("pivot_Move_I_Gain", this.movePIDController.getI());
+        Preferences.getDouble("pivot_Move_D_Gain", this.movePIDController.getD());
+        Preferences.getDouble("pivot_Absolute_Encoder_Get", this.absoluteEncoder.get());
+        Preferences.getDouble("pivot_Absolute_Encoder_Absolute", this.absoluteEncoder.getAbsolutePosition());
+        Preferences.getDouble("pivot_Motor_Encoder", this.pivotMotorMaster.getEncoder().getPosition());
+
+        Preferences.getDouble("pivot kP", kP);
+        Preferences.getDouble("pivot kI", kI);
+        Preferences.getDouble("pivot kD", kD);
+        Preferences.getDouble("pivot FeedForward kG", kG);
+        Preferences.getDouble("pivot FeedForward kV", kV);
+        Preferences.getDouble("pivot FeedForward kS", kS);
+        SmartDashboard.putNumber("Pivot_Target_Angle", this.getTargetAngle());
+        SmartDashboard.putNumber("pivot_Angle", this.getPivotAngle());
+        SmartDashboard.putNumber("pivot_Output_Master", this.pivotMotorMaster.get());
+        SmartDashboard.putNumber("pivot_Angular_Velocity", this.getAngularVelocity());
+        SmartDashboard.putNumber("pivot_Absolute_Encoder_Get", this.absoluteEncoder.get());
+        SmartDashboard.putNumber("pivot_Absolute_Encoder_Absolute", this.absoluteEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber("pivot_Motor_Encoder", this.pivotMotorMaster.getEncoder().getPosition());
+    }
+
+    public void resetArmTargetAngle() {
+        this.motionProfileStartState = new TrapezoidProfile.State(this.getPivotAngle(), 0.0);
+        this.motionProfileEndState = new TrapezoidProfile.State(this.getPivotAngle(), 0.0);
+
+        this.targetAngle = this.getPivotAngle();
+    }
+    }
   }
 }
