@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DutyCycle;
 import swervelib.math.Matter;  
 
 /**
@@ -25,7 +26,6 @@ public final class Constants
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
   public static final double MAX_SPEED  = Units.feetToMeters(14.5);
       // Maximum speed of the robot in meters per second, used to limit acceleration.
-
   public static final class AutonConstants
   {
 
@@ -62,6 +62,19 @@ public final class Constants
     public static final int TOP_MOTOR_ID = 0;
     public static final int BOTTOM_MOTOR_ID = 0;
     public static final double MOTOR_GEAR_RATIO_COEFFICIENT = 4;
+  }
+
+  public static class ShooterConstants {}
+
+  public static class PivotConstants {
+    public static final int PIVOT_MOTOR_MASTER_ID = 0;
+    public static final int PIVOT_MOTOR_SLAVE_ID = 0;
+    public static final int PIVOT_ENCODER_CHANNEL = 0;
+
+    public static final double ABS_ENCODER_OFFSET = 0;
+    public static final double PIVOT_ENCODER_CONVERSION_FACTOR = 1/112.5;
+
+    public static final double HOME_POSITION_ACP = 0;
   }
 
     //Gear ratios
