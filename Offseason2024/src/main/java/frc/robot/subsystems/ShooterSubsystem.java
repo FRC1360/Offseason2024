@@ -58,6 +58,12 @@ public class ShooterSubsystem extends SubsystemBase {
     this.targetVelocity = targetVelocity;
   }
 
+  public void stopShooter() {
+    this.targetVelocity = 0.0;
+    motorBottom.set(0.0);
+    motorTop.set(0.0);
+  }
+
   public double getTopVelocity() {
     this.currentTopVelocity = this.motorTop.getEncoder().getVelocity();
     return this.currentTopVelocity;
