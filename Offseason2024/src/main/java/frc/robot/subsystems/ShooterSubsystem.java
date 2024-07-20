@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -20,7 +21,6 @@ public class ShooterSubsystem extends SubsystemBase {
   double targetVelocity;
   double currentTopVelocity;
   double currentBottomVelocity;
-  double deadband;
   double topP, topI, topD, topFF, bottomP, bottomI, botomD, bottomFF;
 
   public ShooterSubsystem() {
@@ -32,7 +32,6 @@ public class ShooterSubsystem extends SubsystemBase {
     this.targetVelocity = 0.0;
     this.currentTopVelocity = 0.0;
     this.currentBottomVelocity = 0.0;
-    this.deadband = 100.0;
 
     this.topP = 0.0;
     this.topI = 0.0;
@@ -69,7 +68,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean atTargetVelocity() {
-    if (Math.abs(this.currentTopVelocity - this.targetVelocity) <= this.deadband && Math.abs(this.currentBottomVelocity - this.targetVelocity) <= this.deadband) {
+    if (Math.abs(this.currentTopVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND && Math.abs(this.currentBottomVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND) {
       return true;
     }
     else {

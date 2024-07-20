@@ -62,9 +62,14 @@ public final class Constants
     public static final int TOP_MOTOR_ID = 0;
     public static final int BOTTOM_MOTOR_ID = 0;
     public static final double MOTOR_GEAR_RATIO_COEFFICIENT = 4;
+    public static final int SHOOTER_SENSOR_PIN = 0;
+    public static final double SPEED_DEADBAND = 0;
   }
 
-  public static class ShooterConstants {}
+  public static class ShooterConstants {
+
+    public static final double VELOCITY_DEADBAND = 100;
+  }
 
   public static class PivotConstants {
     public static final int PIVOT_MOTOR_MASTER_ID = 0;
@@ -74,7 +79,10 @@ public final class Constants
     public static final double ABS_ENCODER_OFFSET = 0;
     public static final double PIVOT_ENCODER_CONVERSION_FACTOR = 1/112.5;
 
-    public static final double HOME_POSITION_ACP = 0;
+    public static final double HOME_POSITION = 0;
+    public static final int PIVOT_DEADBAND = 2;
+    public static final double MAX_ANGLE = 60;
+    public static final double MIN_ANGLE = 0;
   }
 
     //Gear ratios

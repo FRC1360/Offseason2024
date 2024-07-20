@@ -8,6 +8,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -15,6 +17,7 @@ public class IndexSubsystem extends SubsystemBase {
   
     private CANSparkMax motorTop;
     private CANSparkMax motorBottom;
+    private DigitalInput sensor;
     private double targetSpeed;
 
 
@@ -24,6 +27,8 @@ public class IndexSubsystem extends SubsystemBase {
       this.motorBottom.setIdleMode(IdleMode.kBrake);
       this.motorTop.setIdleMode(IdleMode.kBrake);
       this.targetSpeed = 0.0;
+
+      this.sensor = new DigitalInput(Constants.IndexConstants.SHOOTER_SENSOR_PIN);
     }
 
 //Add deadbands fopr the atspeed triggers because fluctuations exist
@@ -32,8 +37,13 @@ public class IndexSubsystem extends SubsystemBase {
       this.targetSpeed = targetSpeed * Constants.IndexConstants.MOTOR_GEAR_RATIO_COEFFICIENT;
     }
 
-    public boolean bottomSpeedAtTraget() {
-      if (motorBottom.get() == this.targetSpeed && motorTop.get() == this.targetSpeed) {
+    
+    public void setTopSpeed(double targetSpeed) {
+      this.targetSpeed = targetSpeed * Constants.IndexConstants.MOTOR_GEAR_RATIO_COEFFICIENT;
+    }
+
+    public boolean speedAtTarget() {
+      if (Math.abs(motorBottom.get() - this.targetSpeed) <= Constants.IndexConstants.SPEED_DEADBAND && motorTop.get() == this.targetSpeed) {
         return true;
       }
       else {
@@ -41,9 +51,14 @@ public class IndexSubsystem extends SubsystemBase {
       }
     }
 
+    public boolean noteDetected() {
+      return !(sensor.get());
+    }
+
     @Override
     public void periodic() {
       this.motorBottom.set(this.targetSpeed);
       this.motorTop.set(this.targetSpeed);
+      SmartDashboard.putBoolean("note detected in index", noteDetected());
     }
 }
