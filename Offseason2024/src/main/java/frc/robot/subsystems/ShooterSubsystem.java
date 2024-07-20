@@ -5,16 +5,31 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  CANSparkFlex motorTop = new CANSparkFlex(0, MotorType.kBrushless);
-  CANSparkFlex motorBottom = new CANSparkFlex(0, MotorType.kBrushless);
+  CANSparkFlex motorTop;
+  CANSparkFlex motorBottom;
+  SparkPIDController topController;
+  SparkPIDController bottomController;
+  double topP, topI, topD, topFF, bottomP, bottomI, botomD, bottomFF;
 
-  public ShooterSubsystem() {}
+  public ShooterSubsystem() {
+    this.motorTop = new CANSparkFlex(0, MotorType.kBrushless);
+    this.motorBottom = new CANSparkFlex(0, MotorType.kBrushless);
+    this.topController = motorTop.getPIDController();
+    this.bottomController = motorBottom.getPIDController();
+
+
+
+
+    
+
+  }
 
   @Override
   public void periodic() {
