@@ -26,8 +26,8 @@ public class ShooterSubsystem extends SubsystemBase {
   double topP, topI, topD, topFF, bottomP, bottomI, botomD, bottomFF;
 
   public ShooterSubsystem() {
-    this.motorTop = new CANSparkFlex(0, MotorType.kBrushless);
-    this.motorBottom = new CANSparkFlex(0, MotorType.kBrushless);
+    this.motorTop = new CANSparkFlex(Constants.ShooterConstants.TOP_MOTOR_ID, MotorType.kBrushless);
+    this.motorBottom = new CANSparkFlex(Constants.ShooterConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
     this.topController = motorTop.getPIDController();
     this.bottomController = motorBottom.getPIDController();
 

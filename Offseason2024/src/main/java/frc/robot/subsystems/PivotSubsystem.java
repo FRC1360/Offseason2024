@@ -53,7 +53,7 @@ public class PivotSubsystem extends SubsystemBase {
     this.pivotMotorMaster.getEncoder().setPositionConversionFactor(Constants.PivotConstants.PIVOT_ENCODER_CONVERSION_FACTOR);
     this.pivotMotorSlave.getEncoder().setVelocityConversionFactor(Constants.PivotConstants.PIVOT_ENCODER_CONVERSION_FACTOR);
 
-    this.pivotMotorSlave.follow(this.pivotMotorMaster);
+    this.pivotMotorSlave.follow(this.pivotMotorMaster, true);
 
     this.absoluteEncoder = new DutyCycleEncoder(Constants.PivotConstants.PIVOT_ENCODER_CHANNEL);
 

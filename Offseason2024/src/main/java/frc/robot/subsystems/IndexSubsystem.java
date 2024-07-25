@@ -27,6 +27,8 @@ public class IndexSubsystem extends SubsystemBase {
       this.motorBottom = new CANSparkMax(Constants.IndexConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
       this.motorBottom.setIdleMode(IdleMode.kBrake);
       this.motorTop.setIdleMode(IdleMode.kBrake);
+      this.motorTop.setInverted(true);
+      this.motorBottom.setInverted(true);
       this.targetSpeed = 0.0;
 
       this.sensor = new DigitalInput(Constants.IndexConstants.SHOOTER_SENSOR_PIN);

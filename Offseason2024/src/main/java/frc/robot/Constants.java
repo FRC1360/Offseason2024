@@ -51,9 +51,9 @@ public final class Constants
   }
 
   public static class IntakeConstants {
-    public static final int TOP_MOTOR_ID = 0;
-    public static final int MIDDLE_MOTOR_ID = 0;
-    public static final int BOTTOM_MOTOR_ID = 0;
+    public static final int TOP_MOTOR_ID = 32;
+    public static final int MIDDLE_MOTOR_ID = 31;
+    public static final int BOTTOM_MOTOR_ID = 30;
     public static final double BOTTOM_MOTOR_GEAR_RATIO_COEFFICIENT = 4;
     public static final double ROLLER_MOTORS_GEAR_RATIO_COEFFICIENT = 4;
     public static final double BOTTOM_MOTOR_INTAKE_SPEED = 0.5;
@@ -61,8 +61,8 @@ public final class Constants
   }
 
   public static class IndexConstants {
-    public static final int TOP_MOTOR_ID = 0;
-    public static final int BOTTOM_MOTOR_ID = 0;
+    public static final int TOP_MOTOR_ID = 50;
+    public static final int BOTTOM_MOTOR_ID = 51;
     public static final double MOTOR_GEAR_RATIO_COEFFICIENT = 4;
     public static final int SHOOTER_SENSOR_PIN = 0;
     public static final double SPEED_DEADBAND = 0;
@@ -76,11 +76,13 @@ public final class Constants
     public static final double SHOOTER_INTAKE_SPEED = -200;
     public static final double SHOOTER_SHOOT_SPEED = 0;
     public static final double MAX_VELOCITY = 6800;
+    public static final int TOP_MOTOR_ID = 60;
+    public static final int BOTTOM_MOTOR_ID = 61; 
   }
 
   public static class PivotConstants {
-    public static final int PIVOT_MOTOR_MASTER_ID = 0;
-    public static final int PIVOT_MOTOR_SLAVE_ID = 0;
+    public static final int PIVOT_MOTOR_MASTER_ID = 40;
+    public static final int PIVOT_MOTOR_SLAVE_ID = 41;
     public static final int PIVOT_ENCODER_CHANNEL = 0;
 
     public static final double ABS_ENCODER_OFFSET = 0;
