@@ -23,8 +23,8 @@ import frc.robot.util.OrbitTimer;
 
 public class PivotSubsystem extends SubsystemBase {
 
-  private CANSparkMax pivotMotorMaster;
-  private CANSparkMax pivotMotorSlave;
+  private CANSparkMax pivotMotorLeft;
+  private CANSparkMax pivotMotorRight;
 
   private PIDController movePIDController;
   private double targetAngle;
@@ -45,15 +45,15 @@ public class PivotSubsystem extends SubsystemBase {
   private double maxAcceleration;
 
   public PivotSubsystem() {
-    this.pivotMotorMaster = new CANSparkMax(Constants.PivotConstants.PIVOT_MOTOR_MASTER_ID, MotorType.kBrushless);
-    this.pivotMotorSlave = new CANSparkMax(Constants.PivotConstants.PIVOT_MOTOR_SLAVE_ID, MotorType.kBrushless);
-    this.pivotMotorMaster.setIdleMode(IdleMode.kBrake);
-    this.pivotMotorSlave.setIdleMode(IdleMode.kBrake);
+    this.pivotMotorLeft = new CANSparkMax(Constants.PivotConstants.PIVOT_MOTOR_LEFT_ID, MotorType.kBrushless);
+    this.pivotMotorRight = new CANSparkMax(Constants.PivotConstants.PIVOT_MOTOR_RIGHT_ID, MotorType.kBrushless);
+    this.pivotMotorLeft.setIdleMode(IdleMode.kBrake);
+    this.pivotMotorRight.setIdleMode(IdleMode.kBrake);
 
-    this.pivotMotorMaster.getEncoder().setPositionConversionFactor(Constants.PivotConstants.PIVOT_ENCODER_CONVERSION_FACTOR);
-    this.pivotMotorSlave.getEncoder().setVelocityConversionFactor(Constants.PivotConstants.PIVOT_ENCODER_CONVERSION_FACTOR);
+    this.pivotMotorLeft.getEncoder().setPositionConversionFactor(Constants.PivotConstants.PIVOT_ENCODER_CONVERSION_FACTOR);
+    this.pivotMotorRight.getEncoder().setVelocityConversionFactor(Constants.PivotConstants.PIVOT_ENCODER_CONVERSION_FACTOR);
 
-    this.pivotMotorSlave.follow(this.pivotMotorMaster, true);
+    this.pivotMotorRight.follow(this.pivotMotorLeft, true);
 
     this.absoluteEncoder = new DutyCycleEncoder(Constants.PivotConstants.PIVOT_ENCODER_CHANNEL);
 
@@ -66,7 +66,7 @@ public class PivotSubsystem extends SubsystemBase {
     this.pivotMotionProfileConstraints = new TrapezoidProfile.Constraints(this.maxVelocity, this.maxAcceleration);
     this.pivotMotionProfile = new TrapezoidProfile(this.pivotMotionProfileConstraints);
 
-    if (this.pivotMotorMaster.getEncoder().setPosition(0.0) != REVLibError.kOk) {
+    if (this.pivotMotorLeft.getEncoder().setPosition(0.0) != REVLibError.kOk) {
         DriverStation.reportError("Failed to set position on ACP NEO Encoder", true);
     }
 
@@ -74,8 +74,8 @@ public class PivotSubsystem extends SubsystemBase {
     this.kI = 0.0;
     this.kD = 0.0;
     this.kS = 0.0;
-    this.kG = 0.0;
-    this.kV = 0.0;
+    this.kG = 0.14;
+    this.kV = 2.83;
 
 
     this.motionProfileStartState = new TrapezoidProfile.State(this.getPivotAngle(), 0.0);
@@ -86,7 +86,7 @@ public class PivotSubsystem extends SubsystemBase {
 
 
   public double getMotorRotations() {
-    return this.pivotMotorMaster.getEncoder().getPosition();
+    return this.pivotMotorLeft.getEncoder().getPosition();
   }
 
   public double getPivotAngle() {
@@ -101,7 +101,7 @@ public class PivotSubsystem extends SubsystemBase {
   }
 
   public double getAngularVelocity() {
-    return this.rotationsToAngleConversion(this.pivotMotorMaster.getEncoder().getVelocity()) / 60.0; // Units given in
+    return this.rotationsToAngleConversion(this.pivotMotorLeft.getEncoder().getVelocity()) / 60.0; // Units given in
                                                                                                  // RPM. divided
                                                                                                  // by 60 to get
                                                                                                  // in deg/sec
@@ -166,6 +166,10 @@ public class PivotSubsystem extends SubsystemBase {
         return pidOut + feedforwardOutput;
     }
 
+    public void setPivotNormalizedVoltage(double voltage) {
+        this.pivotMotorLeft.setVoltage(voltage);
+    }
+
   @Override
   public void periodic() {
      updateSmartDashboard();
@@ -174,6 +178,7 @@ public class PivotSubsystem extends SubsystemBase {
         // When the motion profile is finished, the result which it outputs will be the
         // goal, making it a PID/FF control loop only
         double out = calculateControlLoopOutput();
+        setPivotNormalizedVoltage(out);
         SmartDashboard.putNumber("ACP_Control_Loop_Out", out);
         goToTargetAngle();
         // this.setACPNormalizedVoltage(out);
@@ -188,7 +193,7 @@ public class PivotSubsystem extends SubsystemBase {
         Preferences.getDouble("pivot_Move_D_Gain", this.movePIDController.getD());
         Preferences.getDouble("pivot_Absolute_Encoder_Get", this.absoluteEncoder.get());
         Preferences.getDouble("pivot_Absolute_Encoder_Absolute", this.absoluteEncoder.getAbsolutePosition());
-        Preferences.getDouble("pivot_Motor_Encoder", this.pivotMotorMaster.getEncoder().getPosition());
+        Preferences.getDouble("pivot_Motor_Encoder", this.pivotMotorLeft.getEncoder().getPosition());
 
         Preferences.getDouble("pivot kP", kP);
         Preferences.getDouble("pivot kI", kI);
@@ -198,11 +203,11 @@ public class PivotSubsystem extends SubsystemBase {
         Preferences.getDouble("pivot FeedForward kS", kS);
         SmartDashboard.putNumber("Pivot_Target_Angle", this.getTargetAngle());
         SmartDashboard.putNumber("pivot_Angle", this.getPivotAngle());
-        SmartDashboard.putNumber("pivot_Output_Master", this.pivotMotorMaster.get());
+        SmartDashboard.putNumber("pivot_Output_Left", this.pivotMotorLeft.get());
         SmartDashboard.putNumber("pivot_Angular_Velocity", this.getAngularVelocity());
         SmartDashboard.putNumber("pivot_Absolute_Encoder_Get", this.absoluteEncoder.get());
         SmartDashboard.putNumber("pivot_Absolute_Encoder_Absolute", this.absoluteEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("pivot_Motor_Encoder", this.pivotMotorMaster.getEncoder().getPosition());
+        SmartDashboard.putNumber("pivot_Motor_Encoder", this.pivotMotorLeft.getEncoder().getPosition());
     }
 
     public void resetArmTargetAngle() {

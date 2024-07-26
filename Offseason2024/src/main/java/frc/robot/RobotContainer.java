@@ -35,11 +35,11 @@ public class RobotContainer
 {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  final CommandXboxController driverXbox = new CommandXboxController(2);
-  final CommandJoystick leftJoystick = new CommandJoystick(0);
-  final CommandJoystick rightJoystick = new CommandJoystick(1);
+  private final CommandXboxController driverXbox = new CommandXboxController(2);
+  private final CommandJoystick leftJoystick = new CommandJoystick(0);
+  private final CommandJoystick rightJoystick = new CommandJoystick(1);
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+  public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve/neo"));
   final IntakeSubsystem intake = new IntakeSubsystem();
   final IndexSubsystem index = new IndexSubsystem();

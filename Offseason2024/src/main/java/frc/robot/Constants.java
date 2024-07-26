@@ -81,8 +81,8 @@ public final class Constants
   }
 
   public static class PivotConstants {
-    public static final int PIVOT_MOTOR_MASTER_ID = 40;
-    public static final int PIVOT_MOTOR_SLAVE_ID = 41;
+    public static final int PIVOT_MOTOR_LEFT_ID = 40;
+    public static final int PIVOT_MOTOR_RIGHT_ID = 41;
     public static final int PIVOT_ENCODER_CHANNEL = 0;
 
     public static final double ABS_ENCODER_OFFSET = 0;
