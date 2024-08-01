@@ -34,19 +34,6 @@ import java.io.File;
  */
 public class RobotContainer
 {
-  LimelightHelpers.LimelightResults llresults = LimelightHelpers.getLatestResults("");
-  double[] botposeRed = llresults.botpose_wpired;
-  double[] botposeBlue = llresults.botpose_wpiblue;
-
-   LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
-   if(limelightMeasurement.tagCount >= 2)
-   {
-     m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-     m_poseEstimator.addVisionMeasurement(
-         limelightMeasurement.pose,
-         limelightMeasurement.timestampSeconds);
-   }
-
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverXbox = new CommandXboxController(2);
   private final CommandJoystick leftJoystick = new CommandJoystick(0);
@@ -58,6 +45,17 @@ public class RobotContainer
   final IndexSubsystem index = new IndexSubsystem();
   final ShooterSubsystem shooter = new ShooterSubsystem();
   final PivotSubsystem pivot = new PivotSubsystem();
+
+  LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+
+  if(limelightMeasurement.tagCount >= 2)
+  {
+    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+    m_poseEstimator.addVisionMeasurement(
+        limelightMeasurement.pose,
+        limelightMeasurement.timestampSeconds);
+  }
+
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
