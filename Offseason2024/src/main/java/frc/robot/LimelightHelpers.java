@@ -357,7 +357,7 @@ public class LimelightHelpers {
         public LimelightTarget_Retro[] targets_Retro;
 
         @JsonProperty("Fiducial")
-        public LimelightTarget_Fiducial[] targets_Fiducials;
+        public static LimelightTarget_Fiducial[] targets_Fiducials;
 
         @JsonProperty("Classifier")
         public LimelightTarget_Classifier[] targets_Classifier;

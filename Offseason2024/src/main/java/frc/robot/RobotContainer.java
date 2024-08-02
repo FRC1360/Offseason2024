@@ -46,17 +46,6 @@ public class RobotContainer
   final ShooterSubsystem shooter = new ShooterSubsystem();
   final PivotSubsystem pivot = new PivotSubsystem();
 
-  LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
-
-  if(limelightMeasurement.tagCount >= 2)
-  {
-    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-    m_poseEstimator.addVisionMeasurement(
-        limelightMeasurement.pose,
-        limelightMeasurement.timestampSeconds);
-  }
-
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */

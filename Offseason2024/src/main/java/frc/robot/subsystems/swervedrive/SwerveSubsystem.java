@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -55,7 +56,7 @@ public class SwerveSubsystem extends SubsystemBase
    * AprilTag field layout.
    */
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-
+  LimelightHelpers.PoseEstimate limelightMeasurement;
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -63,6 +64,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public SwerveSubsystem(File directory)
   {
+    LimelightHelpers LimelightHelper = new LimelightHelpers();
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
     //  In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
     //  The encoder resolution per motor revolution is 1 per motor revolution.
@@ -93,7 +95,6 @@ public class SwerveSubsystem extends SubsystemBase
     setupPathPlanner();
   }
 
-
   /**
    * Construct the swerve drive.
    *
@@ -104,7 +105,6 @@ public class SwerveSubsystem extends SubsystemBase
   {
     swerveDrive = new SwerveDrive(driveCfg, controllerCfg, Constants.MAX_SPEED);
   }
-
   /**
    * Setup AutoBuilder for PathPlanner.
    */
@@ -149,6 +149,11 @@ public class SwerveSubsystem extends SubsystemBase
     // Taken from PhotonUtils.getDistanceToPose
     Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
     return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
+  }
+
+  public SwerveDrivePoseEstimator getSwervePoseEstimator()
+  {
+    return this.swerveDrive.swerveDrivePoseEstimator;
   }
 
   /**
@@ -386,7 +391,15 @@ public class SwerveSubsystem extends SubsystemBase
     double[] botposeRed = llresults.botpose_wpired;
     double[] botposeBlue = llresults.botpose_wpiblue;
     double pipelineLatency = llresults.latency_pipeline;
-    LimelightHelpers.LimelightTarget_Fiducials = llresults.targets_Fiducials;
+    this.limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+    LimelightHelpers.LimelightResults.targets_Fiducials = llresults.targets_Fiducials;
+    if(limelightMeasurement.tagCount >= 2)
+    {
+      getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+      getSwervePoseEstimator().addVisionMeasurement(
+        getLimeLightMeasurement().pose,
+        getLimeLightMeasurement().timestampSeconds);
+    }
   }
 
   @Override
@@ -402,6 +415,10 @@ public class SwerveSubsystem extends SubsystemBase
   public SwerveDriveKinematics getKinematics()
   {
     return swerveDrive.kinematics;
+  }
+
+  public LimelightHelpers.PoseEstimate getLimeLightMeasurement() {
+    return limelightMeasurement;
   }
 
   /**
