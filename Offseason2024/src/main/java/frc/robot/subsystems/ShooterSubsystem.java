@@ -7,9 +7,11 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -30,16 +32,19 @@ public class ShooterSubsystem extends SubsystemBase {
     this.motorBottom = new CANSparkFlex(Constants.ShooterConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
     this.topController = motorTop.getPIDController();
     this.bottomController = motorBottom.getPIDController();
+    this.motorBottom.setIdleMode(IdleMode.kCoast);
+    this.motorTop.setIdleMode(IdleMode.kCoast);
+    this.motorTop.setInverted(true);
 
     this.targetVelocity = 0.0;
     this.currentTopVelocity = 0.0;
     this.currentBottomVelocity = 0.0;
 
-    this.topP = 0.0;
+    this.topP = 0.002;
     this.topI = 0.0;
     this.topD = 0.0;
     this.topFF = 0.0;
-    this.bottomP = 0.0;
+    this.bottomP = 0.0055;
     this.bottomI = 0.0;
     this.botomD = 0.0;
     this.bottomFF = 0.0;
@@ -54,8 +59,8 @@ public class ShooterSubsystem extends SubsystemBase {
     this.bottomController.setFF(this.bottomFF);
   }
 
-
-  Trigger atMaxVelocity = new Trigger(() -> this.currentTopVelocity >= Constants.ShooterConstants.MAX_VELOCITY && this.currentBottomVelocity >= Constants.ShooterConstants.MAX_VELOCITY);
+  Trigger atMaxVelocity = new Trigger(() -> this.currentTopVelocity >= Constants.ShooterConstants.MAX_VELOCITY
+      && this.currentBottomVelocity >= Constants.ShooterConstants.MAX_VELOCITY);
 
   public void setVelocity(double targetVelocity) {
     if (targetVelocity >= Constants.ShooterConstants.MAX_VELOCITY) {
@@ -82,13 +87,22 @@ public class ShooterSubsystem extends SubsystemBase {
     return this.currentBottomVelocity;
   }
 
-  public Trigger atTargetVelocity = new Trigger (() -> (Math.abs(this.currentTopVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND) && (Math.abs(this.currentBottomVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND));
+  public Trigger atTargetVelocity = new Trigger(() -> (Math
+      .abs(this.currentTopVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND)
+      && (Math.abs(this.currentBottomVelocity - this.targetVelocity) <= Constants.ShooterConstants.VELOCITY_DEADBAND));
 
   @Override
   public void periodic() {
-    this.topController.setReference(this.targetVelocity, ControlType.kVelocity);
-    this.bottomController.setReference(this.targetVelocity, ControlType.kVelocity);
+    // this.topController.setReference(this.targetVelocity, ControlType.kVelocity);
+    // this.bottomController.setReference(this.targetVelocity, ControlType.kVelocity);
 
-    if (this.atMaxVelocity.getAsBoolean()) stopShooter();
+    this.motorTop.set(this.targetVelocity);
+    this.motorBottom.set(this.targetVelocity);
+
+    if (this.atMaxVelocity.getAsBoolean())
+      stopShooter();
+    SmartDashboard.putNumber("Shooter top", getTopVelocity());
+    SmartDashboard.putNumber("Shooter bottom", getBottomVelocity());
+    SmartDashboard.putNumber("Taget velo", this.targetVelocity);
   }
 }

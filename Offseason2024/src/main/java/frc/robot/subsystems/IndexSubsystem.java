@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -31,18 +32,18 @@ public class IndexSubsystem extends SubsystemBase {
       this.motorBottom.setInverted(true);
       this.targetSpeed = 0.0;
 
-      this.sensor = new DigitalInput(Constants.IndexConstants.SHOOTER_SENSOR_PIN);
+      this.sensor = new DigitalInput(Constants.IndexConstants.INDEX_SENSOR_PIN);
     }
 
 //Add deadbands fopr the atspeed triggers because fluctuations exist
 
     public void setBottomSpeed(double targetSpeed) {
-      this.targetSpeed = targetSpeed * Constants.IndexConstants.MOTOR_GEAR_RATIO_COEFFICIENT;
+      this.targetSpeed = targetSpeed;
     }
 
     
     public void setTopSpeed(double targetSpeed) {
-      this.targetSpeed = targetSpeed * Constants.IndexConstants.MOTOR_GEAR_RATIO_COEFFICIENT;
+      this.targetSpeed = targetSpeed;
     }
 
     public Trigger speedAtTarget = new Trigger(() -> (Math.abs(motorBottom.get() - this.targetSpeed) <= Constants.IndexConstants.SPEED_DEADBAND && motorTop.get() == this.targetSpeed));
@@ -53,5 +54,6 @@ public class IndexSubsystem extends SubsystemBase {
     public void periodic() {
       this.motorBottom.set(this.targetSpeed);
       this.motorTop.set(this.targetSpeed);
+      SmartDashboard.putBoolean("Banner sensor state", sensor.get());
     }
 }

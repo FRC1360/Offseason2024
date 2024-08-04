@@ -64,17 +64,17 @@ public final class Constants
     public static final int TOP_MOTOR_ID = 50;
     public static final int BOTTOM_MOTOR_ID = 51;
     public static final double MOTOR_GEAR_RATIO_COEFFICIENT = 4;
-    public static final int SHOOTER_SENSOR_PIN = 0;
+    public static final int INDEX_SENSOR_PIN = 0;
     public static final double SPEED_DEADBAND = 0;
-    public static final double BOTTOM_MOTOR_INTAKE_SPEED = 0;
-    public static final double TOP_MOTOR_INTAKE_SPEED = 0;
+    public static final double BOTTOM_MOTOR_INTAKE_SPEED = 0.3;
+    public static final double TOP_MOTOR_INTAKE_SPEED = 1;
   }
 
   public static class ShooterConstants {
 
-    public static final double VELOCITY_DEADBAND = 100;
+    public static final double VELOCITY_DEADBAND = 0.05;
     public static final double SHOOTER_INTAKE_SPEED = -200;
-    public static final double SHOOTER_SHOOT_SPEED = 0;
+    public static final double SHOOTER_SHOOT_SPEED = 0.75;
     public static final double MAX_VELOCITY = 6800;
     public static final int TOP_MOTOR_ID = 60;
     public static final int BOTTOM_MOTOR_ID = 61; 
