@@ -93,16 +93,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // this.topController.setReference(this.targetVelocity, ControlType.kVelocity);
-    // this.bottomController.setReference(this.targetVelocity, ControlType.kVelocity);
+    this.topController.setReference(this.targetVelocity, ControlType.kVelocity);
+    this.bottomController.setReference(this.targetVelocity, ControlType.kVelocity);
 
-    this.motorTop.set(this.targetVelocity);
-    this.motorBottom.set(this.targetVelocity);
+    // this.motorTop.set(this.targetVelocity);
+    // this.motorBottom.set(this.targetVelocity);
 
     if (this.atMaxVelocity.getAsBoolean())
       stopShooter();
-    SmartDashboard.putNumber("Shooter top", getTopVelocity());
-    SmartDashboard.putNumber("Shooter bottom", getBottomVelocity());
-    SmartDashboard.putNumber("Taget velo", this.targetVelocity);
+    SmartDashboard.putNumber("Shooter top current velocity", getTopVelocity());
+    SmartDashboard.putNumber("Shooter bottom current velocity", getBottomVelocity());
+    SmartDashboard.putNumber("Target shooter velocity", this.targetVelocity);
   }
 }

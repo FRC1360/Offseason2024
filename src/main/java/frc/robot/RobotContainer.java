@@ -163,10 +163,15 @@ public class RobotContainer {
         .onTrue(/*
                  * new InstantCommand(() ->
                  * pivot.setTargetAngle(Constants.PivotConstants.SHOOT_ANGLE)).andThen(
-                 */new InstantCommand(() -> shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED)));
-    leftJoystick.button(1).and(index.noteDetected)/* .and(pivot.atTarget) */.onTrue(
+                 */new InstantCommand(() -> shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED)))
+                 .onFalse(new InstantCommand(() -> shooter.stopShooter()));
+
+    leftJoystick.button(1).and(index.noteDetected)/* .and(pivot.atTarget) */.whileTrue(
         new InstantCommand(() -> index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED))
             .andThen(new InstantCommand(() -> index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))))
+            .whileFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
+                .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))
+                .andThen(new InstantCommand(() -> shooter.stopShooter())));
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))

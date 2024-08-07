@@ -72,9 +72,9 @@ public final class Constants
 
   public static class ShooterConstants {
 
-    public static final double VELOCITY_DEADBAND = 0.05;
+    public static final double VELOCITY_DEADBAND = 100;
     public static final double SHOOTER_INTAKE_SPEED = -200;
-    public static final double SHOOTER_SHOOT_SPEED = 0.75;
+    public static final double SHOOTER_SHOOT_SPEED = 500;
     public static final double MAX_VELOCITY = 6800;
     public static final int TOP_MOTOR_ID = 60;
     public static final int BOTTOM_MOTOR_ID = 61; 

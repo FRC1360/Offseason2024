@@ -35,11 +35,11 @@ public class IntakeSubsystem extends SubsystemBase {
 //Add deadbands fopr the atspeed triggers because fluctuations exist
 
     public void setBottomSpeed(double targetBottomSpeed) {
-      this.targetBottomSpeed = targetBottomSpeed * Constants.IntakeConstants.BOTTOM_MOTOR_GEAR_RATIO_COEFFICIENT;
+      this.targetBottomSpeed = targetBottomSpeed;
     }
 
     public void setRollerSpeed(double targetRollerSpeed) {
-      this.targetRollerSpeed = targetRollerSpeed * Constants.IntakeConstants.ROLLER_MOTORS_GEAR_RATIO_COEFFICIENT;
+      this.targetRollerSpeed = targetRollerSpeed;
     }
 
     public Trigger rollerSpeedAtTarget = new Trigger (() -> (motorMiddle.get() == this.targetRollerSpeed && motorTop.get() == this.targetRollerSpeed));
