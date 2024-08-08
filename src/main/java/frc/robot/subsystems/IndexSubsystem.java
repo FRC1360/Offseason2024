@@ -28,8 +28,9 @@ public class IndexSubsystem extends SubsystemBase {
       this.motorBottom = new CANSparkMax(Constants.IndexConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
       this.motorBottom.setIdleMode(IdleMode.kBrake);
       this.motorTop.setIdleMode(IdleMode.kBrake);
-      this.motorTop.setInverted(true);
+      // this.motorTop.setInverted(true);
       this.motorBottom.setInverted(true);
+      this.motorTop.follow(motorBottom, true);
       this.targetSpeed = 0.0;
 
       this.sensor = new DigitalInput(Constants.IndexConstants.INDEX_SENSOR_PIN);
@@ -37,12 +38,7 @@ public class IndexSubsystem extends SubsystemBase {
 
 //Add deadbands fopr the atspeed triggers because fluctuations exist
 
-    public void setBottomSpeed(double targetSpeed) {
-      this.targetSpeed = targetSpeed;
-    }
-
-    
-    public void setTopSpeed(double targetSpeed) {
+    public void setSpeed(double targetSpeed) {
       this.targetSpeed = targetSpeed;
     }
 
@@ -53,7 +49,6 @@ public class IndexSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
       this.motorBottom.set(this.targetSpeed);
-      this.motorTop.set(this.targetSpeed);
-      SmartDashboard.putBoolean("Banner sensor state", sensor.get());
+      SmartDashboard.putBoolean("Banner sensor state", !sensor.get());
     }
 }

@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.swervedrive.assembly_commands.FireCommand;
+import frc.robot.commands.swervedrive.assembly_commands.PrepFireCommand;
 // import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.IndexSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -159,19 +161,21 @@ public class RobotContainer {
     //         (new InstantCommand(() -> index.setBottomSpeed(0.0)))
     //             .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
 
-    rightJoystick.button(1)
-        .onTrue(/*
-                 * new InstantCommand(() ->
-                 * pivot.setTargetAngle(Constants.PivotConstants.SHOOT_ANGLE)).andThen(
-                 */new InstantCommand(() -> shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED)))
-                 .onFalse(new InstantCommand(() -> shooter.stopShooter()));
+    rightJoystick.button(1)./*and(index.noteDetected)*/onTrue(
+      (new PrepFireCommand(shooter))
+      .andThen(new FireCommand(index, shooter).withTimeout(1))
+    ).onFalse(
+      new InstantCommand(() -> shooter.setVelocity(0.0))
+    );
 
-    leftJoystick.button(1).and(index.noteDetected)/* .and(pivot.atTarget) */.whileTrue(
-        new InstantCommand(() -> index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED))
-            .andThen(new InstantCommand(() -> index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))))
-            .whileFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
-                .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))
-                .andThen(new InstantCommand(() -> shooter.stopShooter())));
+    leftJoystick.button(1).and(() -> !((index.noteDetected).getAsBoolean())).onTrue(
+    (new InstantCommand(() -> shooter.setSpeed(Constants.ShooterConstants.SHOOTER_INTAKE_SPEED)))  
+    .andThen(new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED)))
+    )
+    .onFalse(
+      (new InstantCommand(() -> index.setSpeed(0.0)))
+      .andThen(new InstantCommand(() -> shooter.setSpeed(0)))
+    );
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))
