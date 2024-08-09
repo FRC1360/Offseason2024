@@ -30,7 +30,7 @@ public class IndexSubsystem extends SubsystemBase {
       this.motorTop.setIdleMode(IdleMode.kBrake);
       // this.motorTop.setInverted(true);
       this.motorBottom.setInverted(true);
-      this.motorTop.follow(motorBottom, true);
+      this.motorTop.follow(motorBottom);
       this.targetSpeed = 0.0;
 
       this.sensor = new DigitalInput(Constants.IndexConstants.INDEX_SENSOR_PIN);
