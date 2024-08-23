@@ -51,14 +51,14 @@ public class ShooterSubsystem extends SubsystemBase {
     this.currentTopVelocity = 0.0;
     this.currentBottomVelocity = 0.0;
 
-    this.topP = 0.0000125; // 0.0015
+    this.topP = 0.0; // 0.0000125
     this.topI = 0.0;
     this.topD = 0.0;
-    this.topFF = 0.000145; // 0.00042
-    this.bottomP = 0.0000125; // just for fun (tune it later)
+    this.topFF = 0.0; // 0.000145
+    this.bottomP = 0.000015; // 19
     this.bottomI = 0.0;
     this.botomD = 0.0;
-    this.bottomFF = 0.000145; // this too
+    this.bottomFF = 0.00015; // 000145
 
     this.topController.setP(this.topP);
     this.topController.setI(this.topI);
@@ -84,8 +84,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void stopShooter() {
     this.targetVelocity = 0.0;
-    motorBottom.set(0.0);
-    motorTop.set(0.0);
   }
 
   public void setSpeed(double speed) {
