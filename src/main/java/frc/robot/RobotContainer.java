@@ -165,7 +165,7 @@ public class RobotContainer {
       (new PrepFireCommand(shooter))
       .andThen(new FireCommand(index, shooter).withTimeout(5))
     ).onFalse(
-      new InstantCommand(() -> shooter.setVelocity(0.0))
+      new InstantCommand(() -> shooter.stopShooter())
     );
 
     leftJoystick.button(1).and(() -> !((index.noteDetected).getAsBoolean())).onTrue(
@@ -173,7 +173,6 @@ public class RobotContainer {
     )
     .onFalse(
       (new InstantCommand(() -> index.setSpeed(0.0)))
-      .andThen(new InstantCommand(() -> shooter.setSpeed(0)))
     );
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))

@@ -51,14 +51,14 @@ public class ShooterSubsystem extends SubsystemBase {
     this.currentTopVelocity = 0.0;
     this.currentBottomVelocity = 0.0;
 
-    this.topP = 0.0006; // 0.0005
+    this.topP = 0.0006; // 0.0006
     this.topI = 0.0;
     this.topD = 0.0;
     this.topFF = 0.000145; // 0.000145
-    this.bottomP = 0.0; // 000006
+    this.bottomP = 0.0005; // 000012
     this.bottomI = 0.0;
     this.botomD = 0.0;
-    this.bottomFF = 0.0; // 00015
+    this.bottomFF = 0.00015; // 00015
 
     this.topController.setP(this.topP);
     this.topController.setI(this.topI);
