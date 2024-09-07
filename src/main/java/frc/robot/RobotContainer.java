@@ -22,12 +22,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.assembly_commands.FireCommand;
 import frc.robot.commands.swervedrive.assembly_commands.PrepFireCommand;
-// import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.IndexSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-// import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
 /**
@@ -44,13 +44,11 @@ public class RobotContainer {
   private final CommandJoystick leftJoystick = new CommandJoystick(0);
   private final CommandJoystick rightJoystick = new CommandJoystick(1);
   // The robot's subsystems and commands are defined here...
-  // public final SwerveSubsystem drivebase = new SwerveSubsystem(new
-  // File(Filesystem.getDeployDirectory(),
-
-  // "swerve"));
+  public final SwerveSubsystem drivebase = new SwerveSubsystem(new
+  File(Filesystem.getDeployDirectory(), "swerve"));
   // final IntakeSubsystem intake = new IntakeSubsystem();
-  final IndexSubsystem index = new IndexSubsystem();
-  final ShooterSubsystem shooter = new ShooterSubsystem();
+  // final IndexSubsystem index = new IndexSubsystem();
+  // final ShooterSubsystem shooter = new ShooterSubsystem();
   // final PivotSubsystem pivot = new PivotSubsystem();
 
   /**
@@ -87,38 +85,39 @@ public class RobotContainer {
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the desired angle NOT angular rotation
-    /*
-     * Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
-     * OperatorConstants.LEFT_Y_DEADBAND),
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
-     * OperatorConstants.LEFT_X_DEADBAND),
-     * () -> driverXbox.getRightX(),
-     * () -> driverXbox.getRightY());
-     * 
-     * // Applies deadbands and inverts controls because joysticks
-     * // are back-right positive while robot
-     * // controls are front-left positive
-     * // left stick controls translation
-     * // right stick controls the angular velocity of the robot
-     * Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
-     * OperatorConstants.LEFT_Y_DEADBAND),
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
-     * OperatorConstants.LEFT_X_DEADBAND),
-     * () -> driverXbox.getRightX() * 0.5);
-     * 
-     * Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
-     * OperatorConstants.LEFT_Y_DEADBAND),
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
-     * OperatorConstants.LEFT_X_DEADBAND),
-     * () -> driverXbox.getRawAxis(2));
-     * 
-     * drivebase.setDefaultCommand(
-     * !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle :
-     * driveFieldOrientedDirectAngleSim);
-     */
+    
+      Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
+      () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+      OperatorConstants.LEFT_Y_DEADBAND),
+      () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+      OperatorConstants.LEFT_X_DEADBAND),
+      () -> driverXbox.getRightX(),
+      () -> driverXbox.getRightY());
+      
+      // Applies deadbands and inverts controls because joysticks
+      // are back-right positive while robot
+      // controls are front-left positive
+      // left stick controls translation
+      // right stick controls the angular velocity of the robot
+     
+     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
+      () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+      OperatorConstants.LEFT_Y_DEADBAND),
+      () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+      OperatorConstants.LEFT_X_DEADBAND),
+      () -> driverXbox.getRightX() * 0.5);
+      
+      Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
+      () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+      OperatorConstants.LEFT_Y_DEADBAND),
+      () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+      OperatorConstants.LEFT_X_DEADBAND),
+      () -> driverXbox.getRawAxis(2));
+      
+      drivebase.setDefaultCommand(
+      !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle :
+      driveFieldOrientedDirectAngleSim);
+     
   }
 
   /**
@@ -147,8 +146,8 @@ public class RobotContainer {
      * ));
      * driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
      */
-    // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
-    // drivebase).repeatedly());
+    driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
+    drivebase).repeatedly());
 
     // leftJoystick.button(1).onTrue((new InstantCommand(() ->
     // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
@@ -161,19 +160,19 @@ public class RobotContainer {
     //         (new InstantCommand(() -> index.setBottomSpeed(0.0)))
     //             .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
 
-    rightJoystick.button(1)./*and(index.noteDetected)*/onTrue(
-      (new PrepFireCommand(shooter))
-      .andThen(new FireCommand(index, shooter).withTimeout(5))
-    ).onFalse(
-      new InstantCommand(() -> shooter.stopShooter())
-    );
+    // rightJoystick.button(1)./*and(index.noteDetected)*/onTrue(
+    //   (new PrepFireCommand(shooter))
+    //   .andThen(new FireCommand(index, shooter).withTimeout(5))
+    // ).onFalse(
+    //   new InstantCommand(() -> shooter.stopShooter())
+    // );
 
-    leftJoystick.button(1).and(() -> !((index.noteDetected).getAsBoolean())).onTrue(
-    (new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED)))
-    )
-    .onFalse(
-      (new InstantCommand(() -> index.setSpeed(0.0)))
-    );
+    // leftJoystick.button(1).and(() -> !((index.noteDetected).getAsBoolean())).onTrue(
+    // (new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED)))
+    // )
+    // .onFalse(
+    //   (new InstantCommand(() -> index.setSpeed(0.0)))
+    // );
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))

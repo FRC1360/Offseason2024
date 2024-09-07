@@ -19,7 +19,7 @@
     "canbus": null
   },
   "encoder": {
-    "type": "ctre_mag",
+    "type": "cancoder",
     "id": 12,
     "canbus": null
   },
