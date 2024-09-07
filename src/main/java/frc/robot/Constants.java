@@ -52,9 +52,9 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final int TOP_MOTOR_ID = 32;
-    public static final int MIDDLE_MOTOR_ID = 31;
-    public static final int BOTTOM_MOTOR_ID = 30;
+    public static final int TOP_MOTOR_ID = 50;
+    public static final int MIDDLE_MOTOR_ID = 31;  // no longer used
+    public static final int BOTTOM_MOTOR_ID = 51;
     public static final double BOTTOM_MOTOR_GEAR_RATIO_COEFFICIENT = 4;
     public static final double ROLLER_MOTORS_GEAR_RATIO_COEFFICIENT = 4;
     public static final double BOTTOM_MOTOR_INTAKE_SPEED = 0.5;
@@ -62,8 +62,8 @@ public final class Constants {
   }
 
   public static class IndexConstants {
-    public static final int TOP_MOTOR_ID = 50;
-    public static final int BOTTOM_MOTOR_ID = 51;
+    public static final int TOP_MOTOR_ID = 53;
+    public static final int BOTTOM_MOTOR_ID = 54;
     public static final double MOTOR_GEAR_RATIO_COEFFICIENT = 4;
     public static final int INDEX_SENSOR_PIN = 0;
     public static final double SPEED_DEADBAND = 0.1;

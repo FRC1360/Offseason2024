@@ -44,11 +44,13 @@ public class RobotContainer {
   private final CommandJoystick leftJoystick = new CommandJoystick(0);
   private final CommandJoystick rightJoystick = new CommandJoystick(1);
   // The robot's subsystems and commands are defined here...
-  public final SwerveSubsystem drivebase = new SwerveSubsystem(new
-  File(Filesystem.getDeployDirectory(), "swerve"));
+  // public final SwerveSubsystem drivebase = new SwerveSubsystem(new
+  // File(Filesystem.getDeployDirectory(),
+
+  // "swerve"));
   // final IntakeSubsystem intake = new IntakeSubsystem();
-  // final IndexSubsystem index = new IndexSubsystem();
-  // final ShooterSubsystem shooter = new ShooterSubsystem();
+  final IndexSubsystem index = new IndexSubsystem();
+  final ShooterSubsystem shooter = new ShooterSubsystem();
   // final PivotSubsystem pivot = new PivotSubsystem();
 
   /**
@@ -151,14 +153,16 @@ public class RobotContainer {
 
     // leftJoystick.button(1).onTrue((new InstantCommand(() ->
     // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
-    // leftJoystick.button(1)
-    //     .and(() -> !((index.noteDetected).getAsBoolean()))
-    //     .whileTrue(
-    //         (new InstantCommand(() -> index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED)))
-    //             .andThen(new InstantCommand(() -> index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))))
-    //     .onFalse(
-    //         (new InstantCommand(() -> index.setBottomSpeed(0.0)))
-    //             .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
+    leftJoystick.button(1)
+       .and(() -> !((index.noteDetected).getAsBoolean()))
+         .whileTrue(
+             (new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED)))
+             .andThen(new InstantCommand(() -> intake.setRollerSpeed(1.0)))
+          )
+         .onFalse(
+             (new InstantCommand(() -> index.setSpeed(0.0)))
+             .andThen(new InstantCommand(() -> intake.setRollerSpeed(0.0)))
+          );
 
     // rightJoystick.button(1)./*and(index.noteDetected)*/onTrue(
     //   (new PrepFireCommand(shooter))
