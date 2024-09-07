@@ -23,11 +23,18 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public IntakeSubsystem() {
       this.motorTop = new CANSparkMax(Constants.IntakeConstants.TOP_MOTOR_ID, MotorType.kBrushless);
-      this.motorMiddle = new CANSparkMax(Constants.IntakeConstants.MIDDLE_MOTOR_ID, MotorType.kBrushless);
+      //this.motorMiddle = new CANSparkMax(Constants.IntakeConstants.MIDDLE_MOTOR_ID, MotorType.kBrushless);
       this.motorBottom = new CANSparkMax(Constants.IntakeConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
+
+      this.motorTop.restoreFactoryDefaults();
+      this.motorBottom.restoreFactoryDefaults();
+
       this.motorBottom.setIdleMode(IdleMode.kBrake);
       this.motorTop.setIdleMode(IdleMode.kBrake);
-      this.motorMiddle.setIdleMode(IdleMode.kBrake);
+
+      this.motorBottom.setInverted(false);
+
+      //this.motorMiddle.setIdleMode(IdleMode.kBrake);
       this.targetBottomSpeed = 0.0;
       this.targetRollerSpeed = 0.0;
     }
@@ -49,8 +56,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-      this.motorBottom.set(this.targetBottomSpeed);
-      this.motorMiddle.set(this.targetRollerSpeed);
+      this.motorBottom.set(this.targetRollerSpeed);
+      //this.motorMiddle.set(this.targetRollerSpeed);
       this.motorTop.set(this.targetRollerSpeed);
     }
 }
