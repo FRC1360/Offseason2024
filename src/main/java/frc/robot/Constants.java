@@ -87,7 +87,7 @@ public final class Constants {
     public static final int PIVOT_ENCODER_CHANNEL = 0;
 
     public static final double ABS_ENCODER_OFFSET = 0;
-    public static final double PIVOT_ENCODER_CONVERSION_FACTOR = 1 / 112.5;
+    public static final double PIVOT_ENCODER_CONVERSION_FACTOR = 1.0 / 145.0 * 360.0;
 
     public static final double HOME_POSITION = 0;
     public static final int PIVOT_DEADBAND = 2;

@@ -48,7 +48,7 @@ public class RobotContainer {
   // final IntakeSubsystem intake = new IntakeSubsystem();
   // final IndexSubsystem index = new IndexSubsystem();
   // final ShooterSubsystem shooter = new ShooterSubsystem();
-  // final PivotSubsystem pivot = new PivotSubsystem();
+  final PivotSubsystem pivot = new PivotSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
