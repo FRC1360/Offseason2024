@@ -2,6 +2,9 @@
   "NetworkTables": {
     "transitory": {
       "SmartDashboard": {
+        "Motors": {
+          "open": true
+        },
         "navX-Sensor[4]": {
           "open": true
         },
@@ -29,6 +32,8 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Pigeon 2 (v6) [0]": "Gyro",
+      "/SmartDashboard/Pigeon 2 (v6) [5]": "Gyro",
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     }
   },
@@ -308,7 +313,10 @@
             }
           ]
         }
-      ]
+      ],
+      "window": {
+        "visible": false
+      }
     }
   }
 }

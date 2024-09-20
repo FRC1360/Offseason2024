@@ -101,12 +101,12 @@ public class RobotContainer {
     // left stick controls translation
     // right stick controls the angular velocity of the robot
 
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+    Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand( //Xbox controller has to be inverted because it in itself is inverted. It's weird :(
+        () -> MathUtil.applyDeadband(leftJoystick.getY() * -1,
             OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+        () -> MathUtil.applyDeadband(leftJoystick.getX() * -1,
             OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRightX());
+        () -> rightJoystick.getX() * -1); 
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
