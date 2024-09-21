@@ -94,6 +94,10 @@ public final class Constants {
     public static final double MAX_ANGLE = 60;
     public static final double MIN_ANGLE = 0;
     public static final double SHOOT_ANGLE = 0;
+
+    public static final double KG = 0;
+    public static final double kS = 0;
+    public static final double KV = 0;
   }
 
   public static class SubsystemWeights {

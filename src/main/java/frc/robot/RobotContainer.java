@@ -118,6 +118,8 @@ public class RobotContainer {
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
 
+
+
   }
 
   /**
@@ -149,6 +151,8 @@ public class RobotContainer {
     driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
         drivebase).repeatedly());
 
+        leftJoystick.button(2).onTrue(new InstantCommand(() -> pivot.setTargetAngle(4.4)));
+        leftJoystick.button(3).onTrue(new InstantCommand(() -> pivot.setTargetAngle(45)));
     // leftJoystick.button(1).onTrue((new InstantCommand(() ->
     // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
     // leftJoystick.button(1)
