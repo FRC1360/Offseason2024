@@ -13,6 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 public class PivotSubsystem extends SubsystemBase {
@@ -59,8 +60,9 @@ public class PivotSubsystem extends SubsystemBase {
     profileConstraints = new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration);
 
     pivotPID = new ProfiledPIDController(kP, kI, kD, profileConstraints, 0.02);
+    pivotPID.setTolerance(2.0);
     ffController = new ArmFeedforward(kS, kG, kV);
-    targetAngle = 4.4;
+    targetAngle = Constants.PivotConstants.HOME_POSITION;
   }
 
   public void setTargetAngle(double targetAngle) {
@@ -70,6 +72,8 @@ public class PivotSubsystem extends SubsystemBase {
   public double getCurrentAngle() {
     return pivotMotorLeft.getEncoder().getPosition();
   }
+
+  public Trigger atTargetAngle = new Trigger(() -> this.pivotPID.atGoal());
 
   public void periodic() {
     double output = pivotPID.calculate(this.getCurrentAngle(), targetAngle);

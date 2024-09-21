@@ -52,18 +52,17 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final int TOP_MOTOR_ID = 50;
-    public static final int MIDDLE_MOTOR_ID = 31;  // no longer used
-    public static final int BOTTOM_MOTOR_ID = 51;
+    public static final int LEFT_ID = 30;
+    public static final int RIGHT_ID = 31;
     public static final double BOTTOM_MOTOR_GEAR_RATIO_COEFFICIENT = 4;
     public static final double ROLLER_MOTORS_GEAR_RATIO_COEFFICIENT = 4;
     public static final double BOTTOM_MOTOR_INTAKE_SPEED = 0.5;
-    public static final double ROLLER_MOTORS_INTAKE_SPEED = 0.5;
+    public static final double ROLLER_MOTORS_INTAKE_SPEED = 1.0;
   }
 
   public static class IndexConstants {
-    public static final int TOP_MOTOR_ID = 53;
-    public static final int BOTTOM_MOTOR_ID = 54;
+    public static final int TOP_MOTOR_ID = 50;
+    public static final int BOTTOM_MOTOR_ID = 51;
     public static final double MOTOR_GEAR_RATIO_COEFFICIENT = 4;
     public static final int INDEX_SENSOR_PIN = 0;
     public static final double SPEED_DEADBAND = 0.1;
@@ -89,7 +88,7 @@ public final class Constants {
     public static final double ABS_ENCODER_OFFSET = 0;
     public static final double PIVOT_ENCODER_CONVERSION_FACTOR = 1.0 / 145.0 * 360.0;
 
-    public static final double HOME_POSITION = 0;
+    public static final double HOME_POSITION = 4.4;
     public static final int PIVOT_DEADBAND = 2;
     public static final double MAX_ANGLE = 60;
     public static final double MIN_ANGLE = 0;

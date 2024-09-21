@@ -14,50 +14,35 @@ import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase {
   
-    private CANSparkMax motorTop;
-    private CANSparkMax motorMiddle;
-    private CANSparkMax motorBottom;
-    private double targetBottomSpeed;
+    private CANSparkMax motorRight;
+    private CANSparkMax motorLeft;
     private double targetRollerSpeed;
 
 
     public IntakeSubsystem() {
-      this.motorTop = new CANSparkMax(Constants.IntakeConstants.TOP_MOTOR_ID, MotorType.kBrushless);
-      //this.motorMiddle = new CANSparkMax(Constants.IntakeConstants.MIDDLE_MOTOR_ID, MotorType.kBrushless);
-      this.motorBottom = new CANSparkMax(Constants.IntakeConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
+      this.motorRight = new CANSparkMax(Constants.IntakeConstants.RIGHT_ID, MotorType.kBrushless);
+      this.motorLeft = new CANSparkMax(Constants.IntakeConstants.LEFT_ID, MotorType.kBrushless);
 
-      this.motorTop.restoreFactoryDefaults();
-      this.motorBottom.restoreFactoryDefaults();
+      this.motorRight.restoreFactoryDefaults();
+      this.motorLeft.restoreFactoryDefaults();
 
-      this.motorBottom.setIdleMode(IdleMode.kBrake);
-      this.motorTop.setIdleMode(IdleMode.kBrake);
+      this.motorLeft.setIdleMode(IdleMode.kBrake);
+      this.motorRight.setIdleMode(IdleMode.kBrake);
 
-      this.motorBottom.setInverted(false);
+      this.motorLeft.setInverted(false);
 
-      //this.motorMiddle.setIdleMode(IdleMode.kBrake);
-      this.targetBottomSpeed = 0.0;
       this.targetRollerSpeed = 0.0;
     }
 
 //Add deadbands fopr the atspeed triggers because fluctuations exist
 
-    public void setBottomSpeed(double targetBottomSpeed) {
-      this.targetBottomSpeed = targetBottomSpeed;
-    }
-
     public void setRollerSpeed(double targetRollerSpeed) {
       this.targetRollerSpeed = targetRollerSpeed;
     }
 
-    public Trigger rollerSpeedAtTarget = new Trigger (() -> (motorMiddle.get() == this.targetRollerSpeed && motorTop.get() == this.targetRollerSpeed));
-
-    public Trigger bottomSpeedAtTarget = new Trigger(() -> (motorBottom.get() == this.targetBottomSpeed));
-
-
     @Override
     public void periodic() {
-      this.motorBottom.set(this.targetRollerSpeed);
-      //this.motorMiddle.set(this.targetRollerSpeed);
-      this.motorTop.set(this.targetRollerSpeed);
+      this.motorLeft.set(this.targetRollerSpeed);
+      this.motorRight.set(this.targetRollerSpeed);
     }
 }

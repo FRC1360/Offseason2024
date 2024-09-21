@@ -20,8 +20,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.swervedrive.assembly_commands.FireCommand;
-import frc.robot.commands.swervedrive.assembly_commands.PrepFireCommand;
+import frc.robot.commands.assembly_commands.FireCommand;
+import frc.robot.commands.assembly_commands.PrepFireCommand;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.IndexSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -45,9 +45,9 @@ public class RobotContainer {
   private final CommandJoystick rightJoystick = new CommandJoystick(1);
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-  // final IntakeSubsystem intake = new IntakeSubsystem();
-  // final IndexSubsystem index = new IndexSubsystem();
-  // final ShooterSubsystem shooter = new ShooterSubsystem();
+  final IntakeSubsystem intake = new IntakeSubsystem();
+  final IndexSubsystem index = new IndexSubsystem();
+  final ShooterSubsystem shooter = new ShooterSubsystem();
   final PivotSubsystem pivot = new PivotSubsystem();
 
   /**
@@ -65,41 +65,12 @@ public class RobotContainer {
     // buttons are quick rotation positions to different ways to face
     // WARNING: default buttons are on the same buttons as the ones defined in
     // configureBindings
-    /*
-     * AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
-     * () -> -MathUtil.applyDeadband(driverXbox.getLeftY(),
-     * OperatorConstants.LEFT_Y_DEADBAND),
-     * () -> -MathUtil.applyDeadband(driverXbox.getLeftX(),
-     * OperatorConstants.LEFT_X_DEADBAND),
-     * () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
-     * OperatorConstants.RIGHT_X_DEADBAND),
-     * driverXbox.getHID()::getYButtonPressed,
-     * driverXbox.getHID()::getAButtonPressed,
-     * driverXbox.getHID()::getXButtonPressed,
-     * driverXbox.getHID()::getBButtonPressed);
-     */
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the desired angle NOT angular rotation
-
-    /*
-     * Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
-     * OperatorConstants.LEFT_Y_DEADBAND),
-     * () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
-     * OperatorConstants.LEFT_X_DEADBAND),
-     * () -> driverXbox.getRightX(),
-     * () -> driverXbox.getRightY());
-     */
-
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the angular velocity of the robot
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand( //Xbox controller has to be inverted because it in itself is inverted. It's weird :(
         () -> MathUtil.applyDeadband(leftJoystick.getY() * -1,
@@ -148,11 +119,11 @@ public class RobotContainer {
      * ));
      * driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
      */
-    driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
-        drivebase).repeatedly());
+    // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
+    //     drivebase).repeatedly());
 
-        leftJoystick.button(2).onTrue(new InstantCommand(() -> pivot.setTargetAngle(4.4)));
-        leftJoystick.button(3).onTrue(new InstantCommand(() -> pivot.setTargetAngle(45)));
+        // leftJoystick.button(2).onTrue(new InstantCommand(() -> pivot.setTargetAngle(4.4)));
+        // leftJoystick.button(3).onTrue(new InstantCommand(() -> pivot.setTargetAngle(45)));
     // leftJoystick.button(1).onTrue((new InstantCommand(() ->
     // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
     // leftJoystick.button(1)
@@ -166,21 +137,23 @@ public class RobotContainer {
     // (new InstantCommand(() -> index.setBottomSpeed(0.0)))
     // .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
 
-    // rightJoystick.button(1)./*and(index.noteDetected)*/onTrue(
-    // (new PrepFireCommand(shooter))
-    // .andThen(new FireCommand(index, shooter).withTimeout(5))
-    // ).onFalse(
-    // new InstantCommand(() -> shooter.stopShooter())
-    // );
+    rightJoystick.button(1).and(index.noteDetected).onTrue(
+    (new PrepFireCommand(shooter, pivot))
+    .andThen(new FireCommand(index, shooter, pivot).withTimeout(1))
+    ).onFalse(
+    new InstantCommand(() -> shooter.stopShooter())
+    .andThen( new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))
+    ));
 
-    // leftJoystick.button(1).and(() ->
-    // !((index.noteDetected).getAsBoolean())).onTrue(
-    // (new InstantCommand(() ->
-    // index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED)))
-    // )
-    // .onFalse(
-    // (new InstantCommand(() -> index.setSpeed(0.0)))
-    // );
+    leftJoystick.button(1).and(() ->
+    !((index.noteDetected).getAsBoolean())).onTrue(
+    (new InstantCommand(() -> intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED)))
+    .andThen(new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED))))
+    .onFalse(
+    (new InstantCommand(() -> index.setSpeed(0.0))).andThen(
+        new InstantCommand(() -> intake.setRollerSpeed(0.0))
+    )
+    );
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))
