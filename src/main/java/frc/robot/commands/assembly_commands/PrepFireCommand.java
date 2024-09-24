@@ -13,18 +13,20 @@ public class PrepFireCommand extends Command {
   
   ShooterSubsystem shooter;
   PivotSubsystem pivot;
+  double angle;
 
-  public PrepFireCommand(ShooterSubsystem shooter, PivotSubsystem pivot) {
+  public PrepFireCommand(double angle, ShooterSubsystem shooter, PivotSubsystem pivot) {
     addRequirements(shooter, pivot);
     this.shooter = shooter;
     this.pivot = pivot;
+    this.angle = angle;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED);
-    pivot.setTargetAngle(30.0);  //55.0 for at speaker shot
+    pivot.setTargetAngle(angle);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

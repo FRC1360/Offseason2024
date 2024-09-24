@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.383130458568611,
+      "y": 5.515621031242063
+    },
+    "rotation": -175.55875881056727
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4 note auto - note 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4 note auto - note 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4 note auto - note 3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4 note auto - note 4"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
