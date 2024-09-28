@@ -30,6 +30,8 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
+import org.photonvision.PhotonCamera;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a "declarative" paradigm, very
@@ -154,6 +156,8 @@ public class RobotContainer {
         new InstantCommand(() -> intake.setRollerSpeed(0.0))
     )
     );
+
+    rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1));
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))

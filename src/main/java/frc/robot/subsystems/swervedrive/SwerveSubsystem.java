@@ -17,7 +17,10 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -37,6 +40,15 @@ import frc.robot.LimelightHelpers;
 
 import java.io.File;
 import java.util.function.DoubleSupplier;
+import java.util.Optional;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.proto.Photon;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.EstimatedRobotPose;
+
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -53,11 +65,16 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+
   /**
    * AprilTag field layout.
    */
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   LimelightHelpers.PoseEstimate limelightMeasurement;
+  private final PhotonCamera photonCamera = new PhotonCamera("Camera_Module_v1");
+  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0, 135));
+  PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+      PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -65,7 +82,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param directory Directory of swerve drive config files.
    */
   public SwerveSubsystem(File directory) {
-    LimelightHelpers LimelightHelper = new LimelightHelpers();
+    // LimelightHelpers LimelightHelper = new LimelightHelpers();
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
     // In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
     // The encoder resolution per motor revolution is 1 per motor revolution.
@@ -81,7 +98,6 @@ public class SwerveSubsystem extends SubsystemBase {
     System.out.println("\t\"angle\": " + angleConversionFactor + ",");
     System.out.println("\t\"drive\": " + driveConversionFactor);
     System.out.println("}");
-
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
     // objects being created.
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH; // If code is slow then make LOW
@@ -188,7 +204,7 @@ public class SwerveSubsystem extends SubsystemBase {
               controller.headingCalculate(getHeading().getRadians(),
                   getSpeakerYaw().getRadians()),
               getHeading()));
-        }).until(() -> getSpeakerYaw().minus(getHeading()).getDegrees() < tolerance);
+        }).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
   }
 
   /**
@@ -197,20 +213,18 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param camera {@link PhotonCamera} to communicate with.
    * @return A {@link Command} which will run the alignment.
    */
-  // public Command aimAtTarget(PhotonCamera camera)
-  // {
+  public Command aimAtTarget(PhotonCamera camera) {
 
-  // return run(() -> {
-  // PhotonPipelineResult result = camera.getLatestResult();
-  // if (result.hasTargets())
-  // {
-  // drive(getTargetSpeeds(0,
-  // 0,
-  // Rotation2d.fromDegrees(result.getBestTarget()
-  // .getYaw()))); // Not sure if this will work, more math may be required.
-  // }
-  // });
-  // }
+    return run(() -> {
+      PhotonPipelineResult result = camera.getLatestResult();
+      if (result.hasTargets()) {
+        drive(getTargetSpeeds(0,
+            0,
+            Rotation2d.fromDegrees(result.getBestTarget()
+                .getYaw()))); // Not sure if this will work, more math may be required.
+      }
+    });
+  }
 
   /**
    * Get the path follower with events.
@@ -405,22 +419,24 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Module 3 Velocity", swerveDrive.getModules()[3].getDriveMotor().getVelocity());
     SmartDashboard.putNumber("Target Velocity", swerveDrive.getMaximumVelocity());
     SmartDashboard.putNumber("chassis yaw", swerveDrive.getYaw().getDegrees());
-    // LimelightHelpers.LimelightResults llresults =
-    // LimelightHelpers.getLatestResults("");
-    // double[] botposeRed = llresults.botpose_wpired;
-    // double[] botposeBlue = llresults.botpose_wpiblue;
-    // double pipelineLatency = llresults.latency_pipeline;
-    // this.limelightMeasurement =
-    // LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-    // LimelightHelpers.LimelightResults.targets_Fiducials =
-    // llresults.targets_Fiducials;
-    // if(limelightMeasurement.tagCount >= 2)
-    // {
-    // getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-    // getSwervePoseEstimator().addVisionMeasurement(
-    // getLimeLightMeasurement().pose,
-    // getLimeLightMeasurement().timestampSeconds);
-    // }
+    SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
+    SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
+
+    // this.swerveDrive.add.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7,
+    // 9999999));
+
+    Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose();
+    if (estimatedPose.isPresent()) {
+      Pose2d estPose = estimatedPose.get().estimatedPose.toPose2d();
+      double timeStamp = estimatedPose.get().timestampSeconds;
+      this.swerveDrive.addVisionMeasurement(estPose, timeStamp);
+      // getSwervePoseEstimator().addVisionMeasurement(estPose, timeStamp);
+      // getSwervePoseEstimator().addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(),
+      // estimatedPose.get().timestampSeconds);
+      SmartDashboard.putNumber("Swervedrive Pose X", estimatedPose.get().estimatedPose.getX());
+      SmartDashboard.putNumber("Swervedrive Pose Y", estimatedPose.get().estimatedPose.getY());
+    }
+
   }
 
   @Override
@@ -636,5 +652,10 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void addFakeVisionReading() {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    // photonPoseEstimator.setReferencePose(previousEstimatedRobotPose2d);
+    return photonPoseEstimator.update();
   }
 }
