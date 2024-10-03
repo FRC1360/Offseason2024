@@ -72,7 +72,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   LimelightHelpers.PoseEstimate limelightMeasurement;
   private final PhotonCamera photonCamera = new PhotonCamera("Camera_Module_v1");
-  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0, 135));
+  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0, 180));
   PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
       PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
 
@@ -411,6 +411,12 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.drive(velocity);
   }
 
+  public double calculateShootAngle() {
+    double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
+    double speakerHeight = 1.8034;
+    return Math.atan(speakerHeight / distToSpeaker) * 180/Math.PI;
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Module 0 Velocity", swerveDrive.getModules()[0].getDriveMotor().getVelocity());
@@ -421,6 +427,8 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("chassis yaw", swerveDrive.getYaw().getDegrees());
     SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
     SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
+    SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
+    SmartDashboard.putNumber("Distance to Speaker", getDistanceToSpeaker());
 
     // this.swerveDrive.add.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7,
     // 9999999));

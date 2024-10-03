@@ -140,7 +140,7 @@ public class RobotContainer {
     // .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
 
     rightJoystick.button(1).and(index.noteDetected).onTrue(
-    (new PrepFireCommand(shooter, pivot))
+    (new PrepFireCommand(shooter, pivot, drivebase))
     .andThen(new FireCommand(index, shooter, pivot).withTimeout(1))
     ).onFalse(
     new InstantCommand(() -> shooter.stopShooter())

@@ -74,7 +74,7 @@ public final class Constants {
 
     public static final double VELOCITY_DEADBAND = 150;
     public static final double SHOOTER_INTAKE_SPEED = -0.15;
-    public static final double SHOOTER_SHOOT_SPEED = 5000;
+    public static final double SHOOTER_SHOOT_SPEED = 4000; // If it's too powerful, reduce it to 3500
     public static final double MAX_VELOCITY = 6800;
     public static final int TOP_MOTOR_ID = 60;
     public static final int BOTTOM_MOTOR_ID = 61;
