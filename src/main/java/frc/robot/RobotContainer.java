@@ -158,15 +158,15 @@ public class RobotContainer {
     )
     );
 
-    rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1));
+    rightJoystick.button(2).whileTrue( new InstantCommand (()-> drivebase.turnToSpeaker()) /*drivebase.aimAtSpeaker(0.1)*/);
 
-    leftJoystick.button(2).and(index.noteDetected).onTrue(
-    (new PrepFireCommand(shooter, pivot, drivebase))
-    .andThen(new PassCommand(index, shooter, pivot).withTimeout(1))
-    ).onFalse(
-    new InstantCommand(() -> shooter.stopShooter())
-    .andThen( new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))
-    ));
+    // leftJoystick.button(2).and(index.noteDetected).onTrue(
+    // (new PrepFireCommand(shooter, pivot, drivebase))
+    // .andThen(new PassCommand(index, shooter, pivot).withTimeout(1))
+    // ).onFalse(
+    // new InstantCommand(() -> shooter.stopShooter())
+    // .andThen( new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))
+    // ));
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))

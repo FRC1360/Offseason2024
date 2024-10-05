@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.swervedrive;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
@@ -48,6 +50,7 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.proto.Photon;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.EstimatedRobotPose;
 
 import swervelib.SwerveController;
@@ -73,10 +76,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   LimelightHelpers.PoseEstimate limelightMeasurement;
   private final PhotonCamera photonCamera = new PhotonCamera("Camera_Module_v1");
-  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0.0698, Math.PI));
+  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0, 0));
   PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
       PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
-
   InterpolatingDoubleTreeMap armAngleLookupTable = new InterpolatingDoubleTreeMap();  // Give distance to target, get angle
 
   /**
@@ -436,13 +438,38 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public double calculateShootAngle() {
+    if (photonCamera.getLatestResult().hasTargets()) {
+      List<PhotonTrackedTarget> targets = new ArrayList<>();
+      PhotonTrackedTarget target = targets.get(DriverStation.getAlliance().get() == Alliance.Blue? 7 : 4);
+      if ( target != null) {
+        return target.getPitch() * 1.0 + 0.0;
+      }
+    }
+    return 4.4;
+
     /*double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
     double speakerHeight = 1.524;
     return Math.atan(speakerHeight / distToSpeaker) * 180.0/Math.PI;*/
 
     //return this.armAngleLookupTable.get(Math.abs(getDistanceToSpeaker()));
 
-    return Math.abs(getDistanceToSpeaker()) * -10.551 + 57.9496;
+    // return Math.abs(getDistanceToSpeaker()) * -10.551 + 57.9496;
+  }
+
+  public double calculateSwerveToSpeakerAngle() {
+    if (photonCamera.getLatestResult().hasTargets()) {
+      List<PhotonTrackedTarget> targets = new ArrayList<>();
+      PhotonTrackedTarget target = targets.get(DriverStation.getAlliance().get() == Alliance.Blue? 7 : 4);
+      if ( target != null) {
+        return target.getYaw() * 1.0 + 0.0;
+      }
+    }
+    return 0.0;
+  }
+
+  public void turnToSpeaker() {
+    double angle = calculateSwerveToSpeakerAngle();
+    driveFieldOriented(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, angle, getHeading())); // We could try 360 - angle instead of getHeading() if it doesn't work
   }
 
   @Override
@@ -456,7 +483,7 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
     SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
     SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
-    SmartDashboard.putNumber("Distance to Speaker", getDistanceToSpeaker());
+    SmartDashboard.putNumber("Calculated Speaker Turn Angle", calculateSwerveToSpeakerAngle());
 
     // this.swerveDrive.add.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7,
     // 9999999));
