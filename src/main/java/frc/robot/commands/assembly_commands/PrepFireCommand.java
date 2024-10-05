@@ -16,11 +16,11 @@ public class PrepFireCommand extends Command {
   PivotSubsystem pivot;
   SwerveSubsystem drivebase;
 
-  public PrepFireCommand(ShooterSubsystem shooter, PivotSubsystem pivot, SwerveSubsystem drivebase) {
-    addRequirements(shooter, pivot, drivebase);
-    this.shooter = shooter;
-    this.pivot = pivot;
-    this.drivebase = drivebase;
+  public PrepFireCommand(int i, ShooterSubsystem shooter2, PivotSubsystem pivot2) {
+    addRequirements(i, shooter2, pivot2);
+    this.shooter = i;
+    this.pivot = shooter2;
+    this.drivebase = pivot2;
   }
 
   // Called when the command is initially scheduled.
