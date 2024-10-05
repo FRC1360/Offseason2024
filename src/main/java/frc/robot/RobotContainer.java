@@ -158,7 +158,9 @@ public class RobotContainer {
     )
     );
 
-    rightJoystick.button(2).whileTrue( new InstantCommand (()-> drivebase.turnToSpeaker()) /*drivebase.aimAtSpeaker(0.1)*/);
+    rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1)) /*drivebase.aimAtSpeaker(0.1)*/;
+
+    rightJoystick.button(7).onTrue(new InstantCommand(() -> drivebase.turnToSpeaker()));
 
     // leftJoystick.button(2).and(index.noteDetected).onTrue(
     // (new PrepFireCommand(shooter, pivot, drivebase))

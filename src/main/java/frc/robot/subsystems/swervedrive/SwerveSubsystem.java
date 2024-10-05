@@ -76,10 +76,12 @@ public class SwerveSubsystem extends SubsystemBase {
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   LimelightHelpers.PoseEstimate limelightMeasurement;
   private final PhotonCamera photonCamera = new PhotonCamera("Camera_Module_v1");
-  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0, 0));
+  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47),
+      new Rotation3d(0, Math.PI / 6, 0));
   PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
       PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
-  InterpolatingDoubleTreeMap armAngleLookupTable = new InterpolatingDoubleTreeMap();  // Give distance to target, get angle
+  InterpolatingDoubleTreeMap armAngleLookupTable = new InterpolatingDoubleTreeMap(); // Give distance to target, get
+                                                                                     // angle
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -123,23 +125,25 @@ public class SwerveSubsystem extends SubsystemBase {
 
     this.getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(0.99, 0.99, 0.99));
 
-    /*this.armAngleLookupTable.put(2.03, 36.9);
-    this.armAngleLookupTable.put(0.318, 55.0);
-    this.armAngleLookupTable.put(1.95, 37.77);
-    this.armAngleLookupTable.put(2.25, 35.11);
-    this.armAngleLookupTable.put(2.56, 34.0);  // Test*/
+    /*
+     * this.armAngleLookupTable.put(2.03, 36.9);
+     * this.armAngleLookupTable.put(0.318, 55.0);
+     * this.armAngleLookupTable.put(1.95, 37.77);
+     * this.armAngleLookupTable.put(2.25, 35.11);
+     * this.armAngleLookupTable.put(2.56, 34.0); // Test
+     */
 
-    /*this.armAngleLookupTable.put(2.03, 36.4);
-    this.armAngleLookupTable.put(0.318, 54.5);
-    this.armAngleLookupTable.put(1.95, 37.27);
-    this.armAngleLookupTable.put(2.25, 34.11);*/
+    /*
+     * this.armAngleLookupTable.put(2.03, 36.4);
+     * this.armAngleLookupTable.put(0.318, 54.5);
+     * this.armAngleLookupTable.put(1.95, 37.27);
+     * this.armAngleLookupTable.put(2.25, 34.11);
+     */
 
     this.armAngleLookupTable.put(0.324, 54.43);
     this.armAngleLookupTable.put(1.726, 39.9);
     this.armAngleLookupTable.put(1.088, 46.5);
-    //this.armAngleLookupTable.put(1.84, 39.9);
-    
-
+    // this.armAngleLookupTable.put(1.84, 39.9);
 
   }
 
@@ -248,6 +252,20 @@ public class SwerveSubsystem extends SubsystemBase {
             0,
             Rotation2d.fromDegrees(result.getBestTarget()
                 .getYaw()))); // Not sure if this will work, more math may be required.
+      }
+    });
+  }
+
+  public Command aimAtTargetNoPara() {
+
+    return run(() -> {
+      PhotonPipelineResult result = photonCamera.getLatestResult();
+      if (result.hasTargets()) {
+
+        drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
+            0,
+            getHeading().getDegrees() - result.getBestTarget().getYaw(),
+            getHeading()));
       }
     });
   }
@@ -439,29 +457,46 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public double calculateShootAngle() {
     if (photonCamera.getLatestResult().hasTargets()) {
-      List<PhotonTrackedTarget> targets = new ArrayList<>();
-      PhotonTrackedTarget target = targets.get(DriverStation.getAlliance().get() == Alliance.Blue? 7 : 4);
-      if ( target != null) {
-        return target.getPitch() * 1.0 + 0.0;
+      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
+      // try {
+      // PhotonTrackedTarget target = targets.get(DriverStation.getAlliance().get() ==
+      // Alliance.Blue ? 7 : 4);
+      // } catch (Exception e) {
+      // System.out.println("Nothing found");
+      // }
+      // }
+
+      for (PhotonTrackedTarget t : targets) {
+        System.out.println(t.getFiducialId());
+        if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
+          return t.getPitch() + 52;
+        } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
+          return t.getPitch() + 52;
+        }
       }
+
+      /*
+       * double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
+       * double speakerHeight = 1.524;
+       * return Math.atan(speakerHeight / distToSpeaker) * 180.0/Math.PI;
+       */
+
+      // return this.armAngleLookupTable.get(Math.abs(getDistanceToSpeaker()));
+
+      // return Math.abs(getDistanceToSpeaker()) * -10.551 + 57.9496;
     }
     return 4.4;
-
-    /*double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
-    double speakerHeight = 1.524;
-    return Math.atan(speakerHeight / distToSpeaker) * 180.0/Math.PI;*/
-
-    //return this.armAngleLookupTable.get(Math.abs(getDistanceToSpeaker()));
-
-    // return Math.abs(getDistanceToSpeaker()) * -10.551 + 57.9496;
   }
 
   public double calculateSwerveToSpeakerAngle() {
     if (photonCamera.getLatestResult().hasTargets()) {
-      List<PhotonTrackedTarget> targets = new ArrayList<>();
-      PhotonTrackedTarget target = targets.get(DriverStation.getAlliance().get() == Alliance.Blue? 7 : 4);
-      if ( target != null) {
-        return target.getYaw() * 1.0 + 0.0;
+      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
+      for (PhotonTrackedTarget t : targets) {
+        if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
+          return t.getYaw();
+        } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
+          return t.getYaw();
+        }
       }
     }
     return 0.0;
@@ -469,7 +504,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void turnToSpeaker() {
     double angle = calculateSwerveToSpeakerAngle();
-    driveFieldOriented(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, angle, getHeading())); // We could try 360 - angle instead of getHeading() if it doesn't work
+    swerveDrive.driveFieldOriented(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, angle, getHeading())); // We could try
+                                                                                                      // 360 - angle
+    // instead of getHeading() if
+    // it doesn't work
   }
 
   @Override
