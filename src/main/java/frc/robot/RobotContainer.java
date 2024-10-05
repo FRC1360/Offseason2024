@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.assembly_commands.FireCommand;
+import frc.robot.commands.assembly_commands.PassCommand;
 import frc.robot.commands.assembly_commands.PrepFireCommand;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.IndexSubsystem;
@@ -158,6 +159,14 @@ public class RobotContainer {
     );
 
     rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1));
+
+    leftJoystick.button(2).and(index.noteDetected).onTrue(
+    (new PrepFireCommand(shooter, pivot, drivebase))
+    .andThen(new PassCommand(index, shooter, pivot).withTimeout(1))
+    ).onFalse(
+    new InstantCommand(() -> shooter.stopShooter())
+    .andThen( new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))
+    ));
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))

@@ -89,6 +89,7 @@ public final class Constants {
     public static final double PIVOT_ENCODER_CONVERSION_FACTOR = 1.0 / 145.0 * 360.0;
 
     public static final double HOME_POSITION = 4.4;
+    public static final double PASS_POSITION = 10;
     public static final int PIVOT_DEADBAND = 2;
     public static final double MAX_ANGLE = 60;
     public static final double MIN_ANGLE = 0;
