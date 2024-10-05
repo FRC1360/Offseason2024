@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -72,9 +73,11 @@ public class SwerveSubsystem extends SubsystemBase {
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   LimelightHelpers.PoseEstimate limelightMeasurement;
   private final PhotonCamera photonCamera = new PhotonCamera("Camera_Module_v1");
-  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0, 180));
+  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47), new Rotation3d(0, 0.0698, Math.PI));
   PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
       PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
+
+  InterpolatingDoubleTreeMap armAngleLookupTable = new InterpolatingDoubleTreeMap();  // Give distance to target, get angle
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -115,6 +118,27 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for
                                             // simulations since it causes discrepancies not seen in real life.
     setupPathPlanner();
+
+    this.getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(0.99, 0.99, 0.99));
+
+    /*this.armAngleLookupTable.put(2.03, 36.9);
+    this.armAngleLookupTable.put(0.318, 55.0);
+    this.armAngleLookupTable.put(1.95, 37.77);
+    this.armAngleLookupTable.put(2.25, 35.11);
+    this.armAngleLookupTable.put(2.56, 34.0);  // Test*/
+
+    /*this.armAngleLookupTable.put(2.03, 36.4);
+    this.armAngleLookupTable.put(0.318, 54.5);
+    this.armAngleLookupTable.put(1.95, 37.27);
+    this.armAngleLookupTable.put(2.25, 34.11);*/
+
+    this.armAngleLookupTable.put(0.324, 54.43);
+    this.armAngleLookupTable.put(1.726, 39.9);
+    this.armAngleLookupTable.put(1.088, 46.5);
+    //this.armAngleLookupTable.put(1.84, 39.9);
+    
+
+
   }
 
   /**
@@ -412,9 +436,13 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public double calculateShootAngle() {
-    double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
-    double speakerHeight = 1.8034;
-    return Math.atan(speakerHeight / distToSpeaker) * 180/Math.PI;
+    /*double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
+    double speakerHeight = 1.524;
+    return Math.atan(speakerHeight / distToSpeaker) * 180.0/Math.PI;*/
+
+    //return this.armAngleLookupTable.get(Math.abs(getDistanceToSpeaker()));
+
+    return Math.abs(getDistanceToSpeaker()) * -10.551 + 57.9496;
   }
 
   @Override
@@ -441,9 +469,14 @@ public class SwerveSubsystem extends SubsystemBase {
       // getSwervePoseEstimator().addVisionMeasurement(estPose, timeStamp);
       // getSwervePoseEstimator().addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(),
       // estimatedPose.get().timestampSeconds);
-      SmartDashboard.putNumber("Swervedrive Pose X", estimatedPose.get().estimatedPose.getX());
-      SmartDashboard.putNumber("Swervedrive Pose Y", estimatedPose.get().estimatedPose.getY());
+      SmartDashboard.putNumber("Swervedrive Estimated Pose X", estimatedPose.get().estimatedPose.getX());
+      SmartDashboard.putNumber("Swervedrive Estimated Pose Y", estimatedPose.get().estimatedPose.getY());
     }
+
+    SmartDashboard.putNumber("Swervedrive Pose X", this.getPose().getX());
+    SmartDashboard.putNumber("Swervedrive Pose Y", this.getPose().getY());
+
+    SmartDashboard.putNumber("Speaker X", this.aprilTagFieldLayout.getTagPose(4).get().getX());
 
   }
 

@@ -27,7 +27,7 @@ public class PrepFireCommand extends Command {
   @Override
   public void initialize() {
     shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED);
-    pivot.setTargetAngle(55.0/*drivebase.clculateShootAngle()*/);  //55.0 for at speaker shot
+    pivot.setTargetAngle(drivebase.calculateShootAngle());  //55.0 for at speaker shot
   }
 
   // Called every time the scheduler runs while the command is scheduled.
