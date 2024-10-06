@@ -469,9 +469,9 @@ public class SwerveSubsystem extends SubsystemBase {
       for (PhotonTrackedTarget t : targets) {
         System.out.println(t.getFiducialId());
         if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
-          return t.getPitch() + 52;
+          return t.getPitch() + 51;
         } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
-          return t.getPitch() + 52;
+          return t.getPitch() + 51;
         }
       }
 
