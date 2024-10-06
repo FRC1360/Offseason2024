@@ -195,12 +195,12 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @return Distance to speaker in meters.
    */
-  public double getDistanceToSpeaker() {
-    int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-    // Taken from PhotonUtils.getDistanceToPose
-    Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-    return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
-  }
+  // public double getDistanceToSpeaker() {
+  //   int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
+  //   // Taken from PhotonUtils.getDistanceToPose
+  //   Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+  //   return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
+  // }
 
   public SwerveDrivePoseEstimator getSwervePoseEstimator() {
     return this.swerveDrive.swerveDrivePoseEstimator;
@@ -467,13 +467,14 @@ public class SwerveSubsystem extends SubsystemBase {
       // }
 
       for (PhotonTrackedTarget t : targets) {
-        System.out.println(t.getFiducialId());
+        if (DriverStation.getAlliance().isPresent()) {
         if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
           return t.getPitch() + 52;
         } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
           return t.getPitch() + 52;
         }
       }
+    }
 
       /*
        * double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
@@ -492,11 +493,13 @@ public class SwerveSubsystem extends SubsystemBase {
     if (photonCamera.getLatestResult().hasTargets()) {
       List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
       for (PhotonTrackedTarget t : targets) {
+        if (DriverStation.getAlliance().isPresent()) {
         if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
           return t.getYaw();
         } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
           return t.getYaw();
         }
+      }
       }
     }
     return 0.0;
@@ -518,8 +521,8 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Module 3 Velocity", swerveDrive.getModules()[3].getDriveMotor().getVelocity());
     SmartDashboard.putNumber("Target Velocity", swerveDrive.getMaximumVelocity());
     SmartDashboard.putNumber("chassis yaw", swerveDrive.getYaw().getDegrees());
-    SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
-    SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
+    // SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
+    //SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
     SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
     SmartDashboard.putNumber("Calculated Speaker Turn Angle", calculateSwerveToSpeakerAngle());
 
