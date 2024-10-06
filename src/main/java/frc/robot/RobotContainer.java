@@ -13,15 +13,20 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.autos.FetchPath;
 import frc.robot.commands.assembly_commands.FireCommand;
 import frc.robot.commands.assembly_commands.PassCommand;
+import frc.robot.commands.assembly_commands.IntakeCommand;
 import frc.robot.commands.assembly_commands.PrepFireCommand;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.IndexSubsystem;
@@ -30,6 +35,11 @@ import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.ArrayList;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import org.photonvision.PhotonCamera;
 
@@ -42,86 +52,23 @@ import org.photonvision.PhotonCamera;
  * trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController driverXbox = new CommandXboxController(2);
-  private final CommandJoystick leftJoystick = new CommandJoystick(0);
-  private final CommandJoystick rightJoystick = new CommandJoystick(1);
-  // The robot's subsystems and commands are defined here...
-  public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-  final IntakeSubsystem intake = new IntakeSubsystem();
-  final IndexSubsystem index = new IndexSubsystem();
-  final ShooterSubsystem shooter = new ShooterSubsystem();
-  final PivotSubsystem pivot = new PivotSubsystem();
+    // Replace with CommandPS4Controller or CommandJoystick if needed
+    private final CommandXboxController driverXbox = new CommandXboxController(2);
+    private final CommandJoystick leftJoystick = new CommandJoystick(0);
+    private final CommandJoystick rightJoystick = new CommandJoystick(1);
+    // The robot's subsystems and commands are defined here...
+    public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    final IntakeSubsystem intake = new IntakeSubsystem();
+    final IndexSubsystem index = new IndexSubsystem();
+    final ShooterSubsystem shooter = new ShooterSubsystem();
+    final PivotSubsystem pivot = new PivotSubsystem();
+    public SendableChooser<Command> autoChooser;
+    public ArrayList<Command> tempInitAutos;
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the rotational velocity
-    // buttons are quick rotation positions to different ways to face
-    // WARNING: default buttons are on the same buttons as the ones defined in
-    // configureBindings
-
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the desired angle NOT angular rotation
-
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand( //Xbox controller has to be inverted because it in itself is inverted. It's weird :(
-        () -> MathUtil.applyDeadband(leftJoystick.getY() * -1,
-            OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(leftJoystick.getX() * -1,
-            OperatorConstants.LEFT_X_DEADBAND),
-        () -> rightJoystick.getX() * -1); 
-
-    Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-        () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
-            OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
-            OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRawAxis(2));
-
-    drivebase.setDefaultCommand(
-        !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
-
-
-
-  }
-
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary predicate, or via the
-   * named factories in
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses
-   * for
-   * {@link CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick
-   * Flight joysticks}.
-   */
-  private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-
-    /*
-     * leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));
-     * rightJoystick.button(11).onTrue(Commands.runOnce(drivebase::
-     * addFakeVisionReading));
-     * rightJoystick.button(10).whileTrue(
-     * Commands.deferredProxy(() -> drivebase.driveToPose(
-     * new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-     * ));
-     * driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
      */
+ 
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
     //     drivebase).repeatedly());
 
@@ -169,34 +116,211 @@ public class RobotContainer {
     // new InstantCommand(() -> shooter.stopShooter())
     // .andThen( new InstantCommand(() -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))
     // ));
+
+    public RobotContainer() {
+        // Configure the trigger bindings
+        configureBindings();
+
+        // Applies deadbands and inverts controls because joysticks
+        // are back-right positive while robot
+        // controls are front-left positive
+        // left stick controls translation
+        // right stick controls the rotational velocity
+        // buttons are quick rotation positions to different ways to face
+        // WARNING: default buttons are on the same buttons as the ones defined in
+        // configureBindings
+        /*
+         * AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
+         * () -> -MathUtil.applyDeadband(driverXbox.getLeftY(),
+         * OperatorConstants.LEFT_Y_DEADBAND),
+         * () -> -MathUtil.applyDeadband(driverXbox.getLeftX(),
+         * OperatorConstants.LEFT_X_DEADBAND),
+         * () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
+         * OperatorConstants.RIGHT_X_DEADBAND),
+         * driverXbox.getHID()::getYButtonPressed,
+         * driverXbox.getHID()::getAButtonPressed,
+         * driverXbox.getHID()::getXButtonPressed,
+         * driverXbox.getHID()::getBButtonPressed);
+         */
+
+        // Applies deadbands and inverts controls because joysticks
+        // are back-right positive while robot
+        // controls are front-left positive
+        // left stick controls translation
+        // right stick controls the desired angle NOT angular rotation
+
+        /*
+         * Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
+         * () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+         * OperatorConstants.LEFT_Y_DEADBAND),
+         * () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+         * OperatorConstants.LEFT_X_DEADBAND),
+         * () -> driverXbox.getRightX(),
+         * () -> driverXbox.getRightY());
+         */
+
+        // Applies deadbands and inverts controls because joysticks
+        // are back-right positive while robot
+        // controls are front-left positive
+        // left stick controls translation
+        // right stick controls the angular velocity of the robot
+
+        Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand( // Xbox controller has to be inverted
+                                                                             // because it in itself is inverted. It's
+                                                                             // weird :(
+                () -> MathUtil.applyDeadband(leftJoystick.getY() * -1,
+                        OperatorConstants.LEFT_Y_DEADBAND),
+                () -> MathUtil.applyDeadband(leftJoystick.getX() * -1,
+                        OperatorConstants.LEFT_X_DEADBAND),
+                () -> rightJoystick.getX() * -1);
+
+        Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
+                () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+                        OperatorConstants.LEFT_Y_DEADBAND),
+                () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+                        OperatorConstants.LEFT_X_DEADBAND),
+                () -> driverXbox.getRawAxis(2));
+
+        drivebase.setDefaultCommand(
+                !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
+
+        this.tempInitAutos = new ArrayList<Command>();
+
+        /*
+         * leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));
+         * rightJoystick.button(11).onTrue(Commands.runOnce(drivebase::
+         * addFakeVisionReading));
+         * rightJoystick.button(10).whileTrue(
+         * Commands.deferredProxy(() -> drivebase.driveToPose(
+         * new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
+         * ));
+         * driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
+         */
+        // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
+        // drivebase).repeatedly());
+
+        // leftJoystick.button(2).onTrue(new InstantCommand(() ->
+        // pivot.setTargetAngle(4.4)));
+        // leftJoystick.button(3).onTrue(new InstantCommand(() ->
+        // pivot.setTargetAngle(45)));
+        // leftJoystick.button(1).onTrue((new InstantCommand(() ->
+        // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
+        // leftJoystick.button(1)
+        // .and(() -> !((index.noteDetected).getAsBoolean()))
+        // .whileTrue(
+        // (new InstantCommand(() ->
+        // index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED)))
+        // .andThen(new InstantCommand(() ->
+        // index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))))
+        // .onFalse(
+        // (new InstantCommand(() -> index.setBottomSpeed(0.0)))
+        // .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
+    }
+
     /*
      * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
      * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))
      * .andThen(new InstantCommand(() -> shooter.setVelocity(0.0))))
-     */;
+     */
+    public void loadAllAutos() {
+        this.tempInitAutos.clear(); // in case if robot is not power cycled, data within class are typically cached
 
-  }
+        NamedCommands.registerCommand("PrepFire55", new PrepFireCommand(55, shooter, pivot));
+        NamedCommands.registerCommand("PrepFire30", new PrepFireCommand(30, shooter, pivot));
+        NamedCommands.registerCommand("Fire", new FireCommand(index, shooter, pivot));
+        NamedCommands.registerCommand("intake", new IntakeCommand(intake, shooter, index));
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   *//*
-      * public Command getAutonomousCommand()
-      * {
-      * // An example command will be run in autonomous
-      * //return drivebase.getAutonomousCommand("New Auto");
-      * return null;
-      * }
-      * 
-      * public void setDriveMode()
-      * {
-      * //drivebase.setDefaultCommand();
-      * }
-      * 
-      * public void setMotorBrake(boolean brake)
-      * {
-      * //drivebase.setMotorBrake(brake);
-      * }
-      */
+        System.out.println(AutoBuilder.getAllAutoNames());
+        for (String pathName : AutoBuilder.getAllAutoNames()) {
+            this.tempInitAutos.add(new FetchPath(pathName).getCommand());
+        }
+    }
+
+    public void initalizeAutoChooser() {
+        this.autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData(this.autoChooser);
+    }
+
+    public Command getAutonomousCommand() {
+		// An example command will be run in autonomous
+		// return this.autoChooser.getSelected();
+        return new PathPlannerAuto("4 note auto");
+		// return new RepeatCommand(new DefaultDriveCommand(swerveSubsystem, () ->
+		// -0.25, () -> 0.0, () -> 0.0, right_controller));
+	}
+
+    private void configureBindings() {
+        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+
+        /*
+         * leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));
+         * rightJoystick.button(11).onTrue(Commands.runOnce(drivebase::
+         * addFakeVisionReading));
+         * rightJoystick.button(10).whileTrue(
+         * Commands.deferredProxy(() -> drivebase.driveToPose(
+         * new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
+         * ));
+         * driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
+         */
+        driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
+                drivebase).repeatedly());
+
+        // leftJoystick.button(1).onTrue((new InstantCommand(() ->
+        // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
+        // leftJoystick.button(1)
+        // .and(() -> !((index.noteDetected).getAsBoolean()))
+        // .whileTrue(
+        // (new InstantCommand(() ->
+        // index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED)))
+        // .andThen(new InstantCommand(() ->
+        // index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))))
+        // .onFalse(
+        // (new InstantCommand(() -> index.setBottomSpeed(0.0)))
+        // .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
+
+        // rightJoystick.button(1)./*and(index.noteDetected)*/onTrue(
+        // (new PrepFireCommand(shooter))
+        // .andThen(new FireCommand(index, shooter).withTimeout(5))
+        // ).onFalse(
+        // new InstantCommand(() -> shooter.stopShooter())
+        // );
+
+        // leftJoystick.button(1).and(() ->
+        // !((index.noteDetected).getAsBoolean())).onTrue(
+        // (new InstantCommand(() ->
+        // index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED)))
+        // )
+        // .onFalse(
+        // (new InstantCommand(() -> index.setSpeed(0.0)))
+        // );
+        /*
+         * .onFalse((new InstantCommand(() -> index.setBottomSpeed(0.0)))
+         * .andThen(new InstantCommand(() -> index.setTopSpeed(0.0)))
+         * .andThen(new InstantCommand(() -> shooter.setVelocity(0.0))))
+         */;
+
+    }
+
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     *//*
+        * public Command getAutonomousCommand()
+        * {
+        * // An example command will be run in autonomous
+        * //return drivebase.getAutonomousCommand("New Auto");
+        * return null;
+        * }
+        * 
+        * public void setDriveMode()
+        * {
+        * //drivebase.setDefaultCommand();
+        * }
+        * 
+        * public void setMotorBrake(boolean brake)
+        * {
+        * //drivebase.setMotorBrake(brake);
+        * }
+        */
 }

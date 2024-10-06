@@ -32,8 +32,19 @@ public final class Constants {
   // Maximum speed of the robot in meters per second, used to limit acceleration.
   public static final class AutonConstants {
 
-    public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
-    public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
+        public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
+        public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
+
+        public static final com.pathplanner.lib.util.PIDConstants translation = new com.pathplanner.lib.util.PIDConstants(
+                1, 0, 0.0045);
+        public static final com.pathplanner.lib.util.PIDConstants rotation = new com.pathplanner.lib.util.PIDConstants(
+                0.05, 0.000001, 0);
+        public static final double maxSpeed = 4; // m/s
+        public static final double maxAcceleration = 16; // m/s^2
+        public static final double maxAngularVelocity = Units.degreesToRadians(540); // d/s
+        public static final double maxAngularAcceleration = Units.degreesToRadians(720); // deg/s^2
+        public static final double positionTolerance = 0.025 * 20;
+        public static final double angleTolerance = Math.toRadians(1) * 10;
   }
 
   public static final class DrivebaseConstants {
@@ -108,6 +119,6 @@ public final class Constants {
   // intake is 4:1
   // index is 4:1
   // shooter is 1:1
-  // pivot 112.5:1
+  // pivot 112.5:1\
 
 }
