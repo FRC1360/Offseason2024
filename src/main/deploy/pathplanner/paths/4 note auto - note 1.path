@@ -32,7 +32,7 @@
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "fire",
+      "name": "Shoot_At_Stage",
       "waypointRelativePos": 0,
       "command": {
         "type": "sequential",
@@ -41,25 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "PrepFire55"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 3.0
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "Fire"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 4.0
+                "name": "Fire55"
               }
             }
           ]

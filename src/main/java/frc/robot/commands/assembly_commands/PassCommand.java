@@ -12,13 +12,13 @@ import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.util.OrbitTimer;
 
-public class FireCommand extends Command {
+public class PassCommand extends Command {
   
   IndexSubsystem index;
   ShooterSubsystem shooter;
   PivotSubsystem pivot;
 
-  public FireCommand(IndexSubsystem index, ShooterSubsystem shooter, PivotSubsystem pivot) {
+  public PassCommand(IndexSubsystem index, ShooterSubsystem shooter, PivotSubsystem pivot) {
     addRequirements(index, shooter, pivot);
     this.index = index;
     this.shooter = shooter;
@@ -33,16 +33,14 @@ public class FireCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    System.out.println("Firing");
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     index.setSpeed(0);
     shooter.stopShooter();
-    pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION);
+    pivot.setTargetAngle(Constants.PivotConstants.PASS_POSITION);
   }
 
   // Returns true when the command should end.

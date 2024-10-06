@@ -6,48 +6,43 @@ package frc.robot.commands.assembly_commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.Constants.PivotConstants;
-import frc.robot.subsystems.IndexSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.util.OrbitTimer;
 
-public class FireCommand extends Command {
+public class PrepFireAutoCommand extends Command {
   
-  IndexSubsystem index;
   ShooterSubsystem shooter;
   PivotSubsystem pivot;
+  double targetAngle;
 
-  public FireCommand(IndexSubsystem index, ShooterSubsystem shooter, PivotSubsystem pivot) {
-    addRequirements(index, shooter, pivot);
-    this.index = index;
+  public PrepFireAutoCommand(double angle, ShooterSubsystem shooter, PivotSubsystem pivot) {
+    addRequirements(shooter, pivot);
     this.shooter = shooter;
     this.pivot = pivot;
+    this.targetAngle = angle;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    index.setSpeed(Constants.IndexConstants.INDEX_SHOOT_SPEED);
+    shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED);
+    pivot.setTargetAngle(targetAngle);  //55.0 for at speaker shot
+    // drivebase.aimAtSpeaker(0.1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    System.out.println("Firing");
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    index.setSpeed(0);
-    shooter.stopShooter();
-    pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION);
+    System.out.println("Done prepping");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return shooter.atTargetVelocity.getAsBoolean() && pivot.atTargetAngle.getAsBoolean();
   }
 }

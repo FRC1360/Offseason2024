@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.swervedrive;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
@@ -17,7 +19,11 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -37,6 +43,16 @@ import frc.robot.LimelightHelpers;
 
 import java.io.File;
 import java.util.function.DoubleSupplier;
+import java.util.Optional;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.proto.Photon;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.EstimatedRobotPose;
+
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -53,11 +69,19 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+
   /**
    * AprilTag field layout.
    */
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   LimelightHelpers.PoseEstimate limelightMeasurement;
+  private final PhotonCamera photonCamera = new PhotonCamera("Camera_Module_v1");
+  final Transform3d robotToCamera = new Transform3d(new Translation3d(0.58, 0, 0.47),
+      new Rotation3d(0, Math.PI / 6, 0));
+  PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+      PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
+  InterpolatingDoubleTreeMap armAngleLookupTable = new InterpolatingDoubleTreeMap(); // Give distance to target, get
+                                                                                     // angle
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -65,7 +89,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param directory Directory of swerve drive config files.
    */
   public SwerveSubsystem(File directory) {
-    LimelightHelpers LimelightHelper = new LimelightHelpers();
+    // LimelightHelpers LimelightHelper = new LimelightHelpers();
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
     // In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
     // The encoder resolution per motor revolution is 1 per motor revolution.
@@ -81,7 +105,6 @@ public class SwerveSubsystem extends SubsystemBase {
     System.out.println("\t\"angle\": " + angleConversionFactor + ",");
     System.out.println("\t\"drive\": " + driveConversionFactor);
     System.out.println("}");
-
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
     // objects being created.
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH; // If code is slow then make LOW
@@ -99,6 +122,29 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for
                                             // simulations since it causes discrepancies not seen in real life.
     setupPathPlanner();
+
+    this.getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(0.99, 0.99, 0.99));
+
+    /*
+     * this.armAngleLookupTable.put(2.03, 36.9);
+     * this.armAngleLookupTable.put(0.318, 55.0);
+     * this.armAngleLookupTable.put(1.95, 37.77);
+     * this.armAngleLookupTable.put(2.25, 35.11);
+     * this.armAngleLookupTable.put(2.56, 34.0); // Test
+     */
+
+    /*
+     * this.armAngleLookupTable.put(2.03, 36.4);
+     * this.armAngleLookupTable.put(0.318, 54.5);
+     * this.armAngleLookupTable.put(1.95, 37.27);
+     * this.armAngleLookupTable.put(2.25, 34.11);
+     */
+
+    this.armAngleLookupTable.put(0.324, 54.43);
+    this.armAngleLookupTable.put(1.726, 39.9);
+    this.armAngleLookupTable.put(1.088, 46.5);
+    // this.armAngleLookupTable.put(1.84, 39.9);
+
   }
 
   /**
@@ -149,12 +195,12 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @return Distance to speaker in meters.
    */
-  public double getDistanceToSpeaker() {
-    int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-    // Taken from PhotonUtils.getDistanceToPose
-    Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-    return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
-  }
+  // public double getDistanceToSpeaker() {
+  //   int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
+  //   // Taken from PhotonUtils.getDistanceToPose
+  //   Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+  //   return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
+  // }
 
   public SwerveDrivePoseEstimator getSwervePoseEstimator() {
     return this.swerveDrive.swerveDrivePoseEstimator;
@@ -188,7 +234,7 @@ public class SwerveSubsystem extends SubsystemBase {
               controller.headingCalculate(getHeading().getRadians(),
                   getSpeakerYaw().getRadians()),
               getHeading()));
-        }).until(() -> getSpeakerYaw().minus(getHeading()).getDegrees() < tolerance);
+        }).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
   }
 
   /**
@@ -197,20 +243,32 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param camera {@link PhotonCamera} to communicate with.
    * @return A {@link Command} which will run the alignment.
    */
-  // public Command aimAtTarget(PhotonCamera camera)
-  // {
+  public Command aimAtTarget(PhotonCamera camera) {
 
-  // return run(() -> {
-  // PhotonPipelineResult result = camera.getLatestResult();
-  // if (result.hasTargets())
-  // {
-  // drive(getTargetSpeeds(0,
-  // 0,
-  // Rotation2d.fromDegrees(result.getBestTarget()
-  // .getYaw()))); // Not sure if this will work, more math may be required.
-  // }
-  // });
-  // }
+    return run(() -> {
+      PhotonPipelineResult result = camera.getLatestResult();
+      if (result.hasTargets()) {
+        drive(getTargetSpeeds(0,
+            0,
+            Rotation2d.fromDegrees(result.getBestTarget()
+                .getYaw()))); // Not sure if this will work, more math may be required.
+      }
+    });
+  }
+
+  public Command aimAtTargetNoPara() {
+
+    return run(() -> {
+      PhotonPipelineResult result = photonCamera.getLatestResult();
+      if (result.hasTargets()) {
+
+        drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
+            0,
+            getHeading().getDegrees() - result.getBestTarget().getYaw(),
+            getHeading()));
+      }
+    });
+  }
 
   /**
    * Get the path follower with events.
@@ -397,6 +455,64 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.drive(velocity);
   }
 
+  public double calculateShootAngle() {
+    if (photonCamera.getLatestResult().hasTargets()) {
+      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
+      // try {
+      // PhotonTrackedTarget target = targets.get(DriverStation.getAlliance().get() ==
+      // Alliance.Blue ? 7 : 4);
+      // } catch (Exception e) {
+      // System.out.println("Nothing found");
+      // }
+      // }
+
+      for (PhotonTrackedTarget t : targets) {
+        if (DriverStation.getAlliance().isPresent()) {
+        if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
+          return t.getPitch() + 52;
+        } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
+          return t.getPitch() + 52;
+        }
+      }
+    }
+
+      /*
+       * double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
+       * double speakerHeight = 1.524;
+       * return Math.atan(speakerHeight / distToSpeaker) * 180.0/Math.PI;
+       */
+
+      // return this.armAngleLookupTable.get(Math.abs(getDistanceToSpeaker()));
+
+      // return Math.abs(getDistanceToSpeaker()) * -10.551 + 57.9496;
+    }
+    return 4.4;
+  }
+
+  public double calculateSwerveToSpeakerAngle() {
+    if (photonCamera.getLatestResult().hasTargets()) {
+      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
+      for (PhotonTrackedTarget t : targets) {
+        if (DriverStation.getAlliance().isPresent()) {
+        if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
+          return t.getYaw();
+        } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
+          return t.getYaw();
+        }
+      }
+      }
+    }
+    return 0.0;
+  }
+
+  public void turnToSpeaker() {
+    double angle = calculateSwerveToSpeakerAngle();
+    swerveDrive.driveFieldOriented(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, angle, getHeading())); // We could try
+                                                                                                      // 360 - angle
+    // instead of getHeading() if
+    // it doesn't work
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Module 0 Velocity", swerveDrive.getModules()[0].getDriveMotor().getVelocity());
@@ -405,22 +521,31 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Module 3 Velocity", swerveDrive.getModules()[3].getDriveMotor().getVelocity());
     SmartDashboard.putNumber("Target Velocity", swerveDrive.getMaximumVelocity());
     SmartDashboard.putNumber("chassis yaw", swerveDrive.getYaw().getDegrees());
-    // LimelightHelpers.LimelightResults llresults =
-    // LimelightHelpers.getLatestResults("");
-    // double[] botposeRed = llresults.botpose_wpired;
-    // double[] botposeBlue = llresults.botpose_wpiblue;
-    // double pipelineLatency = llresults.latency_pipeline;
-    // this.limelightMeasurement =
-    // LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-    // LimelightHelpers.LimelightResults.targets_Fiducials =
-    // llresults.targets_Fiducials;
-    // if(limelightMeasurement.tagCount >= 2)
-    // {
-    // getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-    // getSwervePoseEstimator().addVisionMeasurement(
-    // getLimeLightMeasurement().pose,
-    // getLimeLightMeasurement().timestampSeconds);
-    // }
+    // SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
+    //SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
+    SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
+    SmartDashboard.putNumber("Calculated Speaker Turn Angle", calculateSwerveToSpeakerAngle());
+
+    // this.swerveDrive.add.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7,
+    // 9999999));
+
+    Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose();
+    if (estimatedPose.isPresent()) {
+      Pose2d estPose = estimatedPose.get().estimatedPose.toPose2d();
+      double timeStamp = estimatedPose.get().timestampSeconds;
+      this.swerveDrive.addVisionMeasurement(estPose, timeStamp);
+      // getSwervePoseEstimator().addVisionMeasurement(estPose, timeStamp);
+      // getSwervePoseEstimator().addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(),
+      // estimatedPose.get().timestampSeconds);
+      SmartDashboard.putNumber("Swervedrive Estimated Pose X", estimatedPose.get().estimatedPose.getX());
+      SmartDashboard.putNumber("Swervedrive Estimated Pose Y", estimatedPose.get().estimatedPose.getY());
+    }
+
+    SmartDashboard.putNumber("Swervedrive Pose X", this.getPose().getX());
+    SmartDashboard.putNumber("Swervedrive Pose Y", this.getPose().getY());
+
+    SmartDashboard.putNumber("Speaker X", this.aprilTagFieldLayout.getTagPose(4).get().getX());
+
   }
 
   @Override
@@ -636,5 +761,10 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void addFakeVisionReading() {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    // photonPoseEstimator.setReferencePose(previousEstimatedRobotPose2d);
+    return photonPoseEstimator.update();
   }
 }

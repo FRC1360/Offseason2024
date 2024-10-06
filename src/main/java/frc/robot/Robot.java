@@ -53,8 +53,8 @@ public class Robot extends LoggedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     //NamedCommands.registerCommand("", m_autonomousCommand);
-    m_robotContainer.loadAllAutos();
-    m_robotContainer.initalizeAutoChooser();
+    // m_robotContainer.loadAllAutos();
+    // m_robotContainer.initalizeAutoChooser();
     // Create a timer to disable motor brake a few seconds after disable. This will
     // let the robot stop
     // immediately when disabled, but then also let it be pushed more
