@@ -28,12 +28,14 @@ public class IntakeCommand extends Command {
   public void initialize() {
     intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED);
     index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED);
-    shooter.setSpeed(Constants.ShooterConstants.SHOOTER_INTAKE_SPEED);
+    //shooter.setSpeed(Constants.ShooterConstants.SHOOTER_INTAKE_SPEED);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    System.out.println("INtaking");
+  }
 
   // Called once the command ends or is interrupted.
   @Override

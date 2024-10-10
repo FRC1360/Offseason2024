@@ -26,31 +26,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Fire30"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "4 note auto - note 3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire36"
           }
         }
       ]

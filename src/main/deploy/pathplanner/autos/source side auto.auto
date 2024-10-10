@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.383130458568611,
-      "y": 5.515621031242063
+      "x": 0.6807503073695607,
+      "y": 4.373613761472538
     },
-    "rotation": -175.55875881056727
+    "rotation": 119.51
   },
   "command": {
     "type": "sequential",
@@ -20,37 +20,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 note auto - note 2"
+            "pathName": "source side auto - intake"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "source side auto - shoot"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Fire30"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "4 note auto - note 3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire36"
           }
         }
       ]

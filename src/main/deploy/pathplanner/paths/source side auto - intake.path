@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5671635958656545,
-        "y": 6.739121939782341
+        "x": 0.5191987581124822,
+        "y": 4.348392164717821
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.409292510892716,
-        "y": 6.038569000214923
+        "x": 1.2796798990272578,
+        "y": 1.823204786552092
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.5671635958656545,
-        "y": 4.311854008323402
+        "x": 8.270256540513081,
+        "y": 0.7507313826979205
       },
       "prevControl": {
-        "x": 1.8172759422441933,
-        "y": 4.834801977296263
+        "x": 7.002787972321789,
+        "y": 0.8092299319990566
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Auto Source Side Travel"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "shoot",
-      "waypointRelativePos": 0.8,
+      "name": "Intake_Note",
+      "waypointRelativePos": 0.85,
       "command": {
         "type": "sequential",
         "data": {
@@ -41,25 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "intake"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "PrepFire30"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "Fire"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 3.0
+                "name": "Intake"
               }
             }
           ]
@@ -75,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 145.12467165539772,
+    "rotation": 180.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -137.8155566842114,
+    "rotation": 121.2637316943774,
     "velocity": 0
   },
   "useDefaultConstraints": true

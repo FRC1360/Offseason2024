@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
@@ -121,6 +122,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                              // angle.
     swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for
                                             // simulations since it causes discrepancies not seen in real life.
+
     setupPathPlanner();
 
     this.getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(0.99, 0.99, 0.99));
@@ -455,6 +457,26 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.drive(velocity);
   }
 
+  public Trigger seeSpeaker = new Trigger(() -> {
+        if (photonCamera.getLatestResult().hasTargets()) {
+      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
+
+
+      for (PhotonTrackedTarget t : targets) {
+        if (DriverStation.getAlliance().isPresent()) {
+        if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
+          return true;
+        } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
+          return true;
+        }
+      }
+    }
+    }
+    return false;
+  });
+
+
+
   public double calculateShootAngle() {
     if (photonCamera.getLatestResult().hasTargets()) {
       List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
@@ -469,9 +491,9 @@ public class SwerveSubsystem extends SubsystemBase {
       for (PhotonTrackedTarget t : targets) {
         if (DriverStation.getAlliance().isPresent()) {
         if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
-          return t.getPitch() + 52;
+          return t.getPitch() + 50;
         } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
-          return t.getPitch() + 52;
+          return t.getPitch() + 50;
         }
       }
     }

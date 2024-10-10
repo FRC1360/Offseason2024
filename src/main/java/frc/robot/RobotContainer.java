@@ -175,10 +175,11 @@ public class RobotContainer {
 
         this.tempInitAutos = new ArrayList<Command>();
 
-        rightJoystick.button(1).and(index.noteDetected).onTrue(
+        rightJoystick.button(1).and(index.noteDetected).and(drivebase.seeSpeaker).onTrue(
                 (new PrepFireCommand(shooter, pivot, drivebase))
-                        .andThen(new FireCommand(index, shooter, pivot).withTimeout(1)))
-                .onFalse(
+                        .andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
+                        
+        rightJoystick.button(1).and(index.noteDetected).onFalse(
                         new InstantCommand(() -> shooter.stopShooter())
                                 .andThen(new InstantCommand(
                                         () -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
@@ -189,6 +190,8 @@ public class RobotContainer {
                 .onFalse(
                         (new InstantCommand(() -> index.setSpeed(0.0))).andThen(
                                 new InstantCommand(() -> intake.setRollerSpeed(0.0))));
+
+        leftJoystick.button(2).and(index.noteDetected).onTrue(new PrepFireAutoCommand(10, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
 
         rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1));
 
@@ -231,9 +234,10 @@ public class RobotContainer {
     public void loadAllAutos() {
         this.tempInitAutos.clear(); // in case if robot is not power cycled, data within class are typically cached
 
-        NamedCommands.registerCommand("Fire55", new PrepFireAutoCommand(55, shooter, pivot).andThen(new FireCommand(index, shooter, pivot)));
-        NamedCommands.registerCommand("Fire30", new PrepFireAutoCommand(30, shooter, pivot));
-        NamedCommands.registerCommand("intake", new IntakeCommand(intake, shooter, index));
+        NamedCommands.registerCommand("Fire55", new PrepFireAutoCommand(50, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
+        NamedCommands.registerCommand("Fire30", new PrepFireAutoCommand(35, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
+        NamedCommands.registerCommand("Fire36", new PrepFireAutoCommand(35.5, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
+        NamedCommands.registerCommand("Intake", new IntakeCommand(intake, shooter, index));
 
         System.out.println(AutoBuilder.getAllAutoNames());
         for (String pathName : AutoBuilder.getAllAutoNames()) {
@@ -250,6 +254,7 @@ public class RobotContainer {
         // An example command will be run in autonomous
         // return this.autoChooser.getSelected();
         return new PathPlannerAuto("4 note auto");
+        // return new PathPlannerAuto("source side auto");
         // return new RepeatCommand(new DefaultDriveCommand(swerveSubsystem, () ->
         // -0.25, () -> 0.0, () -> 0.0, right_controller));
     }
