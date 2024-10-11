@@ -6,6 +6,8 @@ package frc.robot.subsystems.swervedrive;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ctre.phoenix.Util;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
@@ -14,6 +16,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -459,8 +462,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Trigger seeSpeaker = new Trigger(() -> {
         if (photonCamera.getLatestResult().hasTargets()) {
-      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
-
+      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets(); 
 
       for (PhotonTrackedTarget t : targets) {
         if (DriverStation.getAlliance().isPresent()) {
@@ -491,8 +493,10 @@ public class SwerveSubsystem extends SubsystemBase {
       for (PhotonTrackedTarget t : targets) {
         if (DriverStation.getAlliance().isPresent()) {
         if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
+          System.out.println(t.getPitch());
           return t.getPitch() + 50;
         } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
+          System.out.println(t.getPitch());
           return t.getPitch() + 50;
         }
       }
@@ -510,6 +514,23 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     return 4.4;
   }
+
+  	public double calculateAngle() {
+		double TARGET_HEIGHT = Constants.SPEAKER_HEIGHT;
+    double SHOOTER_HEIGHT = Constants.SHOOTER_HEGHT;
+    double NOTE_VELOCITY = 20;
+		double dx = this.getPose().getX() + (9.75*(2.54/100));
+		double dy = this.getPose().getY() - (9*(2.54/100));
+		double distance = Math.hypot(dx, dy);
+
+		double y = TARGET_HEIGHT - SHOOTER_HEIGHT;
+		double flight_time = distance
+				/ (NOTE_VELOCITY)
+				* 1;
+		y += 9.8 / 2 * flight_time * flight_time;
+
+		return 90 - Units.radiansToDegrees(Math.atan(y / distance));
+	}
 
   public double calculateSwerveToSpeakerAngle() {
     if (photonCamera.getLatestResult().hasTargets()) {
@@ -544,6 +565,7 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Target Velocity", swerveDrive.getMaximumVelocity());
     SmartDashboard.putNumber("chassis yaw", swerveDrive.getYaw().getDegrees());
     // SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
+    
     //SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
     SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
     SmartDashboard.putNumber("Calculated Speaker Turn Angle", calculateSwerveToSpeakerAngle());

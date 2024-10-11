@@ -27,7 +27,8 @@ public class PrepFireCommand extends Command {
   @Override
   public void initialize() {
     shooter.setVelocity(Constants.ShooterConstants.SHOOTER_SHOOT_SPEED);
-    pivot.setTargetAngle(drivebase.calculateShootAngle());  //55.0 for at speaker shot
+    //pivot.setTargetAngle(drivebase.calculateShootAngle());  //55.0 for at speaker shot
+    pivot.setTargetAngle(drivebase.calculateAngle());
     drivebase.aimAtSpeaker(0.1);
   }
 
