@@ -518,9 +518,10 @@ public class SwerveSubsystem extends SubsystemBase {
   	public double calculateAngle() {
 		double TARGET_HEIGHT = Constants.SPEAKER_HEIGHT;
     double SHOOTER_HEIGHT = Constants.SHOOTER_HEGHT;
-    double NOTE_VELOCITY = 20;
-		double dx = this.getPose().getX() + (9.75*(2.54/100));
-		double dy = this.getPose().getY() - (9*(2.54/100));
+    double NOTE_VELOCITY = 11.96;
+		double dx = this.getPose().getX() + (6*(2.54/100));
+    //needs distance to speaker
+		double dy = this.getPose().getY() - (10.5*(2.54/100));
 		double distance = Math.hypot(dx, dy);
 
 		double y = TARGET_HEIGHT - SHOOTER_HEIGHT;
@@ -529,7 +530,7 @@ public class SwerveSubsystem extends SubsystemBase {
 				* 1;
 		y += 9.8 / 2 * flight_time * flight_time;
 
-		return 90 - Units.radiansToDegrees(Math.atan(y / distance));
+		return Units.radiansToDegrees(Math.atan(y / distance));
 	}
 
   public double calculateSwerveToSpeakerAngle() {
@@ -568,6 +569,7 @@ public class SwerveSubsystem extends SubsystemBase {
     
     //SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
     SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
+    SmartDashboard.putNumber("Calculated Pivot Angle", calculateAngle());
     SmartDashboard.putNumber("Calculated Speaker Turn Angle", calculateSwerveToSpeakerAngle());
 
     // this.swerveDrive.add.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7,
