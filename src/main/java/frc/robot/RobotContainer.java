@@ -9,6 +9,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -65,6 +66,7 @@ public class RobotContainer {
     final PivotSubsystem pivot = new PivotSubsystem();
     public SendableChooser<Command> autoChooser;
     public ArrayList<Command> tempInitAutos = new ArrayList<>();
+    final double timeoutTime = 0.5;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -154,6 +156,7 @@ public class RobotContainer {
         // left stick controls translation
         // right stick controls the angular velocity of the robot
 
+
         Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand( // Xbox controller has to be inverted
                                                                              // because it in itself is inverted. It's
                                                                              // weird :(
@@ -177,8 +180,8 @@ public class RobotContainer {
 
         rightJoystick.button(1).and(index.noteDetected).and(drivebase.seeSpeaker).onTrue(
                 (new PrepFireCommand(shooter, pivot, drivebase))
-                        .andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
-                        
+                        .andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+
         rightJoystick.button(1).and(index.noteDetected).onFalse(
                         new InstantCommand(() -> shooter.stopShooter())
                                 .andThen(new InstantCommand(
@@ -191,9 +194,11 @@ public class RobotContainer {
                         (new InstantCommand(() -> index.setSpeed(0.0))).andThen(
                                 new InstantCommand(() -> intake.setRollerSpeed(0.0))));
 
-        leftJoystick.button(2).and(index.noteDetected).onTrue(new PrepFireAutoCommand(10, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
+        leftJoystick.button(2).and(index.noteDetected).onTrue(new PrepFireAutoCommand(10, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
 
         rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1));
+
+        rightJoystick.button(11).whileTrue(drivebase.aimAtAmp(0.1));
 
         /*
          * leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));
@@ -234,9 +239,9 @@ public class RobotContainer {
     public void loadAllAutos() {
         this.tempInitAutos.clear(); // in case if robot is not power cycled, data within class are typically cached
 
-        NamedCommands.registerCommand("Fire55", new PrepFireAutoCommand(50, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
-        NamedCommands.registerCommand("Fire30", new PrepFireAutoCommand(35, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
-        NamedCommands.registerCommand("Fire36", new PrepFireAutoCommand(35.5, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(1)));
+        NamedCommands.registerCommand("Fire55", new PrepFireAutoCommand(50, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        NamedCommands.registerCommand("Fire30", new PrepFireAutoCommand(35, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        NamedCommands.registerCommand("Fire36", new PrepFireAutoCommand(35.5, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
         NamedCommands.registerCommand("Intake", new IntakeCommand(intake, shooter, index));
 
         System.out.println(AutoBuilder.getAllAutoNames());
@@ -253,8 +258,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
         // return this.autoChooser.getSelected();
-        return new PathPlannerAuto("4 note auto");
-        // return new PathPlannerAuto("source side auto");
+        return this.autoChooser.getSelected();
         // return new RepeatCommand(new DefaultDriveCommand(swerveSubsystem, () ->
         // -0.25, () -> 0.0, () -> 0.0, right_controller));
     }

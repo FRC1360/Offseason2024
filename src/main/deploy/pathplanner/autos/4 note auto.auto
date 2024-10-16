@@ -52,6 +52,24 @@
           "data": {
             "name": "Fire36"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4 note auto - note 4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire36"
+          }
         }
       ]
     }

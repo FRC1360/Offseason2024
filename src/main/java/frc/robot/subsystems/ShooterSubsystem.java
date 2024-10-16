@@ -83,7 +83,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void stopShooter() {
-    this.targetVelocity = 0.0;
+    this.targetVelocity = 1000.0;
   }
 
   public void setSpeed(double speed) {

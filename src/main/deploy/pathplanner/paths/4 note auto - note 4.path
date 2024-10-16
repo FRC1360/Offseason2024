@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5671635958656545,
-        "y": 6.739121939782341
+        "x": 2.5868974814872705,
+        "y": 4.2332839081632585
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.409292510892716,
-        "y": 6.038569000214923
+        "x": 2.1846342985245055,
+        "y": 4.513072398526854
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "path3 End"
     },
     {
       "anchor": {
-        "x": 2.5671635958656545,
-        "y": 4.311854008323402
+        "x": 2.7740039525663103,
+        "y": 6.958021893251764
       },
       "prevControl": {
-        "x": 1.8172759422441933,
-        "y": 4.834801977296263
+        "x": 1.2465616934462764,
+        "y": 6.495160602609329
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,8 +32,8 @@
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "shoot",
-      "waypointRelativePos": 0.8,
+      "name": "IntakeLastNote",
+      "waypointRelativePos": 0.1,
       "command": {
         "type": "sequential",
         "data": {
@@ -41,25 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "intake"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "PrepFire30"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "Fire"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 3.0
+                "name": "Intake"
               }
             }
           ]
@@ -75,7 +57,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 145.12467165539772,
+    "rotation": -150.8170535694701,
     "rotateFast": false
   },
   "reversed": false,

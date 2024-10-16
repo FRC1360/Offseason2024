@@ -34,7 +34,7 @@ public class IntakeCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    System.out.println("INtaking");
+    System.out.println("Intaking");
   }
 
   // Called once the command ends or is interrupted.

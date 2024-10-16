@@ -83,6 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
       PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
   InterpolatingDoubleTreeMap armAngleLookupTable = new InterpolatingDoubleTreeMap(); // Give distance to target, get
                                                                                      // angle
+  public double autoName = -1;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -221,6 +222,14 @@ public class SwerveSubsystem extends SubsystemBase {
     return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerveDrive.getOdometryHeading());
   }
 
+ public Rotation2d getAmpYaw() {
+    int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
+    // Taken from PhotonUtils.getYawToPose()
+    Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+    Translation2d relativeTrl = speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
+    return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerveDrive.getOdometryHeading());
+  }
+
   /**
    * Aim the robot at the speaker.
    *
@@ -238,6 +247,19 @@ public class SwerveSubsystem extends SubsystemBase {
               getHeading()));
         }).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
   }
+
+public Command aimAtAmp(double tolerance) {
+    SwerveController controller = swerveDrive.getSwerveController();
+    return run(
+        () -> {
+          drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
+              0,
+              controller.headingCalculate(getHeading().getRadians(),
+                  getAmpYaw().getRadians()),
+              getHeading()));
+        }).until(() -> Math.abs(getAmpYaw().minus(getHeading()).getDegrees()) < tolerance);
+  }
+
 
   /**
    * Aim the robot at the target returned by PhotonVision.
@@ -400,9 +422,11 @@ public class SwerveSubsystem extends SubsystemBase {
       DoubleSupplier angularRotationX) {
     return run(() -> {
       // Make the robot move
+      double invert = DriverStation.getAlliance().get() == Alliance.Blue ? 1.0 : -1.0;
+
       swerveDrive.drive(SwerveMath.cubeTranslation(new Translation2d(
-          translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
-          translationY.getAsDouble() * swerveDrive.getMaximumVelocity())),
+          translationX.getAsDouble() * swerveDrive.getMaximumVelocity() * invert,
+          translationY.getAsDouble() * swerveDrive.getMaximumVelocity() * invert )),
           Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity(),
           true,
           false);
@@ -543,6 +567,7 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Module 3 Velocity", swerveDrive.getModules()[3].getDriveMotor().getVelocity());
     SmartDashboard.putNumber("Target Velocity", swerveDrive.getMaximumVelocity());
     SmartDashboard.putNumber("chassis yaw", swerveDrive.getYaw().getDegrees());
+    SmartDashboard.getNumber("chosen one", autoName);
     // SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
     //SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
     SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
@@ -552,7 +577,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // 9999999));
 
     Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose();
-    if (estimatedPose.isPresent()) {
+    if (estimatedPose.isPresent() && swerveDrive.getRobotVelocity().omegaRadiansPerSecond < 1.0) {
       Pose2d estPose = estimatedPose.get().estimatedPose.toPose2d();
       double timeStamp = estimatedPose.get().timestampSeconds;
       this.swerveDrive.addVisionMeasurement(estPose, timeStamp);
