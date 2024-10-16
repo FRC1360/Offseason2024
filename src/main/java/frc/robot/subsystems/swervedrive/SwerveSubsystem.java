@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
@@ -82,6 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
       PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, robotToCamera);
   InterpolatingDoubleTreeMap armAngleLookupTable = new InterpolatingDoubleTreeMap(); // Give distance to target, get
                                                                                      // angle
+  public double autoName = -1;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -121,6 +123,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                              // angle.
     swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for
                                             // simulations since it causes discrepancies not seen in real life.
+
     setupPathPlanner();
 
     this.getSwervePoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(0.99, 0.99, 0.99));
@@ -195,12 +198,12 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @return Distance to speaker in meters.
    */
-  public double getDistanceToSpeaker() {
-    int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-    // Taken from PhotonUtils.getDistanceToPose
-    Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-    return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
-  }
+  // public double getDistanceToSpeaker() {
+  //   int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
+  //   // Taken from PhotonUtils.getDistanceToPose
+  //   Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+  //   return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
+  // }
 
   public SwerveDrivePoseEstimator getSwervePoseEstimator() {
     return this.swerveDrive.swerveDrivePoseEstimator;
@@ -213,6 +216,14 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Rotation2d getSpeakerYaw() {
     int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
+    // Taken from PhotonUtils.getYawToPose()
+    Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+    Translation2d relativeTrl = speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
+    return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerveDrive.getOdometryHeading());
+  }
+
+ public Rotation2d getAmpYaw() {
+    int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
     // Taken from PhotonUtils.getYawToPose()
     Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
     Translation2d relativeTrl = speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
@@ -236,6 +247,19 @@ public class SwerveSubsystem extends SubsystemBase {
               getHeading()));
         }).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
   }
+
+public Command aimAtAmp(double tolerance) {
+    SwerveController controller = swerveDrive.getSwerveController();
+    return run(
+        () -> {
+          drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
+              0,
+              controller.headingCalculate(getHeading().getRadians(),
+                  getAmpYaw().getRadians()),
+              getHeading()));
+        }).until(() -> Math.abs(getAmpYaw().minus(getHeading()).getDegrees()) < tolerance);
+  }
+
 
   /**
    * Aim the robot at the target returned by PhotonVision.
@@ -398,9 +422,11 @@ public class SwerveSubsystem extends SubsystemBase {
       DoubleSupplier angularRotationX) {
     return run(() -> {
       // Make the robot move
+      double invert = DriverStation.getAlliance().get() == Alliance.Blue ? 1.0 : -1.0;
+
       swerveDrive.drive(SwerveMath.cubeTranslation(new Translation2d(
-          translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
-          translationY.getAsDouble() * swerveDrive.getMaximumVelocity())),
+          translationX.getAsDouble() * swerveDrive.getMaximumVelocity() * invert,
+          translationY.getAsDouble() * swerveDrive.getMaximumVelocity() * invert )),
           Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity(),
           true,
           false);
@@ -455,6 +481,26 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.drive(velocity);
   }
 
+  public Trigger seeSpeaker = new Trigger(() -> {
+        if (photonCamera.getLatestResult().hasTargets()) {
+      List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
+
+
+      for (PhotonTrackedTarget t : targets) {
+        if (DriverStation.getAlliance().isPresent()) {
+        if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
+          return true;
+        } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
+          return true;
+        }
+      }
+    }
+    }
+    return false;
+  });
+
+
+
   public double calculateShootAngle() {
     if (photonCamera.getLatestResult().hasTargets()) {
       List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
@@ -467,13 +513,14 @@ public class SwerveSubsystem extends SubsystemBase {
       // }
 
       for (PhotonTrackedTarget t : targets) {
-        System.out.println(t.getFiducialId());
+        if (DriverStation.getAlliance().isPresent()) {
         if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
-          return t.getPitch() + 51;
+          return t.getPitch() + 50;
         } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
-          return t.getPitch() + 51;
+          return t.getPitch() + 50;
         }
       }
+    }
 
       /*
        * double distToSpeaker = Math.abs(this.getDistanceToSpeaker());
@@ -492,11 +539,13 @@ public class SwerveSubsystem extends SubsystemBase {
     if (photonCamera.getLatestResult().hasTargets()) {
       List<PhotonTrackedTarget> targets = photonCamera.getLatestResult().getTargets();
       for (PhotonTrackedTarget t : targets) {
+        if (DriverStation.getAlliance().isPresent()) {
         if ((DriverStation.getAlliance().get() == Alliance.Blue) && (t.getFiducialId() == 7)) {
           return t.getYaw();
         } else if ((DriverStation.getAlliance().get() == Alliance.Red) && (t.getFiducialId() == 4)) {
           return t.getYaw();
         }
+      }
       }
     }
     return 0.0;
@@ -518,8 +567,9 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Module 3 Velocity", swerveDrive.getModules()[3].getDriveMotor().getVelocity());
     SmartDashboard.putNumber("Target Velocity", swerveDrive.getMaximumVelocity());
     SmartDashboard.putNumber("chassis yaw", swerveDrive.getYaw().getDegrees());
-    SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
-    SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
+    SmartDashboard.getNumber("chosen one", autoName);
+    // SmartDashboard.putNumber("Speaker Distance", getDistanceToSpeaker());
+    //SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
     SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
     SmartDashboard.putNumber("Calculated Speaker Turn Angle", calculateSwerveToSpeakerAngle());
 
@@ -527,7 +577,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // 9999999));
 
     Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose();
-    if (estimatedPose.isPresent()) {
+    if (estimatedPose.isPresent() && swerveDrive.getRobotVelocity().omegaRadiansPerSecond < 1.0) {
       Pose2d estPose = estimatedPose.get().estimatedPose.toPose2d();
       double timeStamp = estimatedPose.get().timestampSeconds;
       this.swerveDrive.addVisionMeasurement(estPose, timeStamp);
