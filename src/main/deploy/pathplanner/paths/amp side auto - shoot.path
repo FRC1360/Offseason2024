@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.38,
-        "y": 5.574822688106915
+        "x": 7.9875135522242555,
+        "y": 7.429315761244349
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3602661143783825,
-        "y": 5.584689630917723
+        "x": 7.012537730538646,
+        "y": 7.52681334341291
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Amp Side Note 3"
     },
     {
       "anchor": {
-        "x": 1.335622956146197,
-        "y": 5.574822688106915
+        "x": 2.3229040282308606,
+        "y": 6.863829784666696
       },
       "prevControl": {
-        "x": 1.3849576702002404,
-        "y": 5.574822688106915
+        "x": 3.20038226774791,
+        "y": 7.400066486593781
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Path1 End"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -39,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -177.9545915111129,
+    "rotation": -157.38013505195957,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -176.13453883014827,
+    "rotation": -173.7741709355742,
     "velocity": 0
   },
   "useDefaultConstraints": true

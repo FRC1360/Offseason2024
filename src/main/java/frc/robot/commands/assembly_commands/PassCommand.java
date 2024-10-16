@@ -6,48 +6,46 @@ package frc.robot.commands.assembly_commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.Constants.PivotConstants;
 import frc.robot.subsystems.IndexSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.util.OrbitTimer;
 
-public class IntakeCommand extends Command {
-
-  IntakeSubsystem intake;
-  ShooterSubsystem shooter;
+public class PassCommand extends Command {
+  
   IndexSubsystem index;
+  ShooterSubsystem shooter;
+  PivotSubsystem pivot;
 
-  public IntakeCommand(IntakeSubsystem intake, ShooterSubsystem shooter, IndexSubsystem index) {
-    addRequirements(intake, shooter, index);
-    this.intake = intake;
-    this.shooter = shooter;
+  public PassCommand(IndexSubsystem index, ShooterSubsystem shooter, PivotSubsystem pivot) {
+    addRequirements(index, shooter, pivot);
     this.index = index;
+    this.shooter = shooter;
+    this.pivot = pivot;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED);
-    index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED);
-    //shooter.setSpeed(Constants.ShooterConstants.SHOOTER_INTAKE_SPEED);
+    index.setSpeed(Constants.IndexConstants.INDEX_SHOOT_SPEED);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    System.out.println("Intaking");
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.setRollerSpeed(0);
     index.setSpeed(0);
-    shooter.setSpeed(0);
+    shooter.stopShooter();
+    pivot.setTargetAngle(Constants.PivotConstants.PASS_POSITION);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return index.noteDetected.getAsBoolean();
+    return false;
   }
 }

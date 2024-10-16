@@ -9,6 +9,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -25,6 +26,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.autos.FetchPath;
 import frc.robot.commands.assembly_commands.FireCommand;
+import frc.robot.commands.assembly_commands.PassCommand;
+import frc.robot.commands.assembly_commands.PrepFireAutoCommand;
 import frc.robot.commands.assembly_commands.IntakeCommand;
 import frc.robot.commands.assembly_commands.PrepFireCommand;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -39,6 +42,8 @@ import java.util.ArrayList;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import org.photonvision.PhotonCamera;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -60,13 +65,51 @@ public class RobotContainer {
     final ShooterSubsystem shooter = new ShooterSubsystem();
     final PivotSubsystem pivot = new PivotSubsystem();
     public SendableChooser<Command> autoChooser;
-    public ArrayList<Command> tempInitAutos;
+    public ArrayList<Command> tempInitAutos = new ArrayList<>();
+    final double timeoutTime = 0.5;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
+
+    // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
+    // drivebase).repeatedly());
+
+    // leftJoystick.button(2).onTrue(new InstantCommand(() ->
+    // pivot.setTargetAngle(4.4)));
+    // leftJoystick.button(3).onTrue(new InstantCommand(() ->
+    // pivot.setTargetAngle(45)));
+    // leftJoystick.button(1).onTrue((new InstantCommand(() ->
+    // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
+    // leftJoystick.button(1)
+    // .and(() -> !((index.noteDetected).getAsBoolean()))
+    // .whileTrue(
+    // (new InstantCommand(() ->
+    // index.setBottomSpeed(Constants.IndexConstants.BOTTOM_MOTOR_INTAKE_SPEED)))
+    // .andThen(new InstantCommand(() ->
+    // index.setTopSpeed(Constants.IndexConstants.TOP_MOTOR_INTAKE_SPEED))))
+    // .onFalse(
+    // (new InstantCommand(() -> index.setBottomSpeed(0.0)))
+    // .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
+
+    /* drivebase.aimAtSpeaker(0.1) */
+
+    // rightJoystick.button(7).onTrue(new InstantCommand(() ->
+    // drivebase.turnToSpeaker()));
+
+    // leftJoystick.button(2).and(index.noteDetected).onTrue(
+    // (new PrepFireCommand(shooter, pivot, drivebase))
+    // .andThen(new PassCommand(index, shooter, pivot).withTimeout(1))
+    // ).onFalse(
+    // new InstantCommand(() -> shooter.stopShooter())
+    // .andThen( new InstantCommand(() ->
+    // pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))
+    // ));
+
     public RobotContainer() {
         // Configure the trigger bindings
+        loadAllAutos();
+        initalizeAutoChooser();
         configureBindings();
 
         // Applies deadbands and inverts controls because joysticks
@@ -113,6 +156,7 @@ public class RobotContainer {
         // left stick controls translation
         // right stick controls the angular velocity of the robot
 
+
         Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand( // Xbox controller has to be inverted
                                                                              // because it in itself is inverted. It's
                                                                              // weird :(
@@ -133,6 +177,28 @@ public class RobotContainer {
                 !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
 
         this.tempInitAutos = new ArrayList<Command>();
+
+        rightJoystick.button(1).and(index.noteDetected).and(drivebase.seeSpeaker).onTrue(
+                (new PrepFireCommand(shooter, pivot, drivebase))
+                        .andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+
+        rightJoystick.button(1).and(index.noteDetected).onFalse(
+                        new InstantCommand(() -> shooter.stopShooter())
+                                .andThen(new InstantCommand(
+                                        () -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
+
+        leftJoystick.button(1).and(() -> !((index.noteDetected).getAsBoolean())).onTrue(
+                (new InstantCommand(() -> intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED)))
+                        .andThen(new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED))))
+                .onFalse(
+                        (new InstantCommand(() -> index.setSpeed(0.0))).andThen(
+                                new InstantCommand(() -> intake.setRollerSpeed(0.0))));
+
+        leftJoystick.button(2).and(index.noteDetected).onTrue(new PrepFireAutoCommand(10, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+
+        rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1));
+
+        rightJoystick.button(11).whileTrue(drivebase.aimAtAmp(0.1));
 
         /*
          * leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));
@@ -163,21 +229,6 @@ public class RobotContainer {
         // .onFalse(
         // (new InstantCommand(() -> index.setBottomSpeed(0.0)))
         // .andThen(new InstantCommand(() -> index.setTopSpeed(0.0))));
-
-        rightJoystick.button(1).and(index.noteDetected).onTrue(
-                (new PrepFireCommand(55, shooter, pivot))
-                        .andThen(new FireCommand(index, shooter, pivot).withTimeout(1)))
-                .onFalse(
-                        new InstantCommand(() -> shooter.stopShooter())
-                                .andThen(new InstantCommand(
-                                        () -> pivot.setTargetAngle(Constants.PivotConstants.HOME_POSITION))));
-
-        leftJoystick.button(1).and(() -> !((index.noteDetected).getAsBoolean())).onTrue(
-                (new InstantCommand(() -> intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED)))
-                        .andThen(new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED))))
-                .onFalse(
-                        (new InstantCommand(() -> index.setSpeed(0.0))).andThen(
-                                new InstantCommand(() -> intake.setRollerSpeed(0.0))));
     }
 
     /*
@@ -188,10 +239,10 @@ public class RobotContainer {
     public void loadAllAutos() {
         this.tempInitAutos.clear(); // in case if robot is not power cycled, data within class are typically cached
 
-        NamedCommands.registerCommand("PrepFire55", new PrepFireCommand(55, shooter, pivot));
-        NamedCommands.registerCommand("PrepFire30", new PrepFireCommand(30, shooter, pivot));
-        NamedCommands.registerCommand("Fire", new FireCommand(index, shooter, pivot));
-        NamedCommands.registerCommand("intake", new IntakeCommand(intake, shooter, index));
+        NamedCommands.registerCommand("Fire55", new PrepFireAutoCommand(50, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        NamedCommands.registerCommand("Fire30", new PrepFireAutoCommand(35, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        NamedCommands.registerCommand("Fire36", new PrepFireAutoCommand(35.5, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        NamedCommands.registerCommand("Intake", new IntakeCommand(intake, shooter, index));
 
         System.out.println(AutoBuilder.getAllAutoNames());
         for (String pathName : AutoBuilder.getAllAutoNames()) {
@@ -205,12 +256,12 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-		// An example command will be run in autonomous
-		// return this.autoChooser.getSelected();
-        return new PathPlannerAuto("4 note auto");
-		// return new RepeatCommand(new DefaultDriveCommand(swerveSubsystem, () ->
-		// -0.25, () -> 0.0, () -> 0.0, right_controller));
-	}
+        // An example command will be run in autonomous
+        // return this.autoChooser.getSelected();
+        return this.autoChooser.getSelected();
+        // return new RepeatCommand(new DefaultDriveCommand(swerveSubsystem, () ->
+        // -0.25, () -> 0.0, () -> 0.0, right_controller));
+    }
 
     private void configureBindings() {
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`

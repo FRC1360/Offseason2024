@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5868974814872705,
-        "y": 4.2332839081632585
+        "x": 0.5191987581124822,
+        "y": 4.348392164717821
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1846342985245055,
-        "y": 4.513072398526854
+        "x": 1.2796798990272578,
+        "y": 1.823204786552092
       },
       "isLocked": false,
-      "linkedName": "path3 End"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.7740039525663103,
-        "y": 6.958021893251764
+        "x": 8.270256540513081,
+        "y": 0.7507313826979205
       },
       "prevControl": {
-        "x": 1.2465616934462764,
-        "y": 6.495160602609329
+        "x": 7.002787972321789,
+        "y": 0.8092299319990566
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Auto Source Side Travel"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "IntakeLastNote",
-      "waypointRelativePos": 0.1,
+      "name": "Intake_Note",
+      "waypointRelativePos": 0.85,
       "command": {
         "type": "sequential",
         "data": {
@@ -57,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -150.8170535694701,
+    "rotation": 180.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -137.8155566842114,
+    "rotation": 121.2637316943774,
     "velocity": 0
   },
   "useDefaultConstraints": true

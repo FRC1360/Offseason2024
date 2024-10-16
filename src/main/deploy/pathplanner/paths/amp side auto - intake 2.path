@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5868974814872705,
-        "y": 4.2332839081632585
+        "x": 2.586147500085975,
+        "y": 6.941827850401545
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1846342985245055,
-        "y": 4.513072398526854
+        "x": 3.586147500085975,
+        "y": 6.941827850401545
       },
       "isLocked": false,
-      "linkedName": "path3 End"
+      "linkedName": "Amp Side Note 2"
     },
     {
       "anchor": {
-        "x": 2.7740039525663103,
-        "y": 6.958021893251764
+        "x": 7.9875135522242555,
+        "y": 7.429315761244349
       },
       "prevControl": {
-        "x": 1.2465616934462764,
-        "y": 6.495160602609329
+        "x": 6.9875135522242555,
+        "y": 7.429315761244349
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Amp Side Note 3"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "IntakeLastNote",
-      "waypointRelativePos": 0.1,
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.8,
       "command": {
         "type": "sequential",
         "data": {
@@ -57,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -150.8170535694701,
+    "rotation": 178.636072468397,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -137.8155566842114,
+    "rotation": 180.0,
     "velocity": 0
   },
   "useDefaultConstraints": true
