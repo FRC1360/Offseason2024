@@ -195,10 +195,10 @@ public class RobotContainer {
                                 new InstantCommand(() -> intake.setRollerSpeed(0.0))));
 
         leftJoystick.button(2).and(index.noteDetected).onTrue(new PrepFireAutoCommand(10, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        leftJoystick.button(4).and(index.noteDetected).onTrue(new PrepFireAutoCommand(55, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.01));
 
-        rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.1));
-
-        rightJoystick.button(11).whileTrue(drivebase.aimAtAmp(0.1));
+        rightJoystick.button(11).whileTrue(drivebase.aimAtAmp(0.01));
 
         /*
          * leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));

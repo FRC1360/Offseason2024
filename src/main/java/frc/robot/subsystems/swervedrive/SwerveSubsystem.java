@@ -243,7 +243,7 @@ public class SwerveSubsystem extends SubsystemBase {
           drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
               0,
               controller.headingCalculate(getHeading().getRadians(),
-                  getSpeakerYaw().getRadians()),
+                  getSpeakerYaw().getRadians())*2.5,
               getHeading()));
         }).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
   }
