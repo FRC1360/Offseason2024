@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 0.938021705103239,
-      "y": 4.443778688127177
-    },
-    "rotation": 129.5794047162376
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -15,6 +9,12 @@
           "type": "named",
           "data": {
             "name": "Fire48"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Taxi Amp"
           }
         }
       ]

@@ -255,7 +255,7 @@ public Command aimAtAmp(double tolerance) {
           drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
               0,
               controller.headingCalculate(getHeading().getRadians(),
-                  getAmpYaw().getRadians()),
+                  getAmpYaw().getRadians())*2.5,
               getHeading()));
         }).until(() -> Math.abs(getAmpYaw().minus(getHeading()).getDegrees()) < tolerance);
   }
@@ -572,6 +572,7 @@ public Command aimAtAmp(double tolerance) {
     //SmartDashboard.putNumber("Speaker Yaw", getSpeakerYaw().getDegrees());
     SmartDashboard.putNumber("Calculated Arm Angle", calculateShootAngle());
     SmartDashboard.putNumber("Calculated Speaker Turn Angle", calculateSwerveToSpeakerAngle());
+    SmartDashboard.putBoolean("Sees speaker", seeSpeaker.getAsBoolean());
 
     // this.swerveDrive.add.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7,
     // 9999999));

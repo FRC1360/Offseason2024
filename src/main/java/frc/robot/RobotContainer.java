@@ -160,16 +160,16 @@ public class RobotContainer {
         Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand( // Xbox controller has to be inverted
                                                                              // because it in itself is inverted. It's
                                                                              // weird :(
-                () -> MathUtil.applyDeadband(leftJoystick.getY() * -1,
+                () -> deadband(leftJoystick.getY() * -1,
                         OperatorConstants.LEFT_Y_DEADBAND),
-                () -> MathUtil.applyDeadband(leftJoystick.getX() * -1,
+                () -> deadband(leftJoystick.getX() * -1,
                         OperatorConstants.LEFT_X_DEADBAND),
-                () -> rightJoystick.getX() * -1);
+                () -> deadband(rightJoystick.getX(), 0.1) * -1);
 
         Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-                () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+                () -> deadband(driverXbox.getLeftY(),
                         OperatorConstants.LEFT_Y_DEADBAND),
-                () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+                () -> deadband(driverXbox.getLeftX(),
                         OperatorConstants.LEFT_X_DEADBAND),
                 () -> driverXbox.getRawAxis(2));
 
@@ -194,11 +194,20 @@ public class RobotContainer {
                         (new InstantCommand(() -> index.setSpeed(0.0))).andThen(
                                 new InstantCommand(() -> intake.setRollerSpeed(0.0))));
 
+        rightJoystick.button(7).onTrue(
+                (new InstantCommand(() -> intake.setRollerSpeed(Constants.IntakeConstants.ROLLER_MOTORS_INTAKE_SPEED * -1)))
+                        .andThen(new InstantCommand(() -> index.setSpeed(Constants.IndexConstants.INDEX_INTAKE_SPEED * -1))))
+                .onFalse(
+                        (new InstantCommand(() -> index.setSpeed(0.0))).andThen(
+                                new InstantCommand(() -> intake.setRollerSpeed(0.0))));
+
         leftJoystick.button(2).and(index.noteDetected).onTrue(new PrepFireAutoCommand(10, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
-        leftJoystick.button(4).and(index.noteDetected).onTrue(new PrepFireAutoCommand(55, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        rightJoystick.button(3).and(index.noteDetected).onTrue(new PrepFireAutoCommand(55, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
         rightJoystick.button(2).whileTrue(drivebase.aimAtSpeaker(0.01));
 
-        rightJoystick.button(11).whileTrue(drivebase.aimAtAmp(0.01));
+        rightJoystick.button(4).whileTrue(drivebase.aimAtAmp(0.01));
+
+        leftJoystick.button(7).onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
 
         /*
          * leftJoystick.button(10).onTrue((Commands.runOnce(drivebase::zeroGyro)));
@@ -240,6 +249,7 @@ public class RobotContainer {
         this.tempInitAutos.clear(); // in case if robot is not power cycled, data within class are typically cached
 
         NamedCommands.registerCommand("Fire55", new PrepFireAutoCommand(50, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
+        NamedCommands.registerCommand("Fire48", new PrepFireAutoCommand(48, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
         NamedCommands.registerCommand("Fire30", new PrepFireAutoCommand(35, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
         NamedCommands.registerCommand("Fire36", new PrepFireAutoCommand(35.5, shooter, pivot).andThen(new FireCommand(index, shooter, pivot).withTimeout(timeoutTime)));
         NamedCommands.registerCommand("Intake", new IntakeCommand(intake, shooter, index));
@@ -314,6 +324,18 @@ public class RobotContainer {
          */;
 
     }
+
+    private static double deadband(double input, double deadband) {
+        double slope = 1 / (1-deadband); // m = rise/run
+        double offset = 1 - slope; // b = y - mx
+        if (input < 0.0) {
+            return Math.abs(input) > deadband? (-1 * (slope * Math.abs(input) + offset)) : 0.0;
+        } else if (input > 0.0) {
+            return Math.abs(input) > deadband? (slope * Math.abs(input) + offset): 0.0;
+        } else {
+            return 0.0;
+        }
+      }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
